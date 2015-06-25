@@ -83,7 +83,3 @@ If prefix is `C-z`, above keys will be `C-z` and `z`... you get the idea.
 * tmux-sensible was developed against tmux 1.6 and dash 0.5 on Linux
 * tmux-sensible will try to run in as many platforms & shells as possible
 * tmux-sensible tries to be as [KISS](http://en.wikipedia.org/wiki/KISS_principle) as possible
-
-### License
-
-[MIT](LICENSE.md)

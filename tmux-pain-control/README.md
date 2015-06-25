@@ -89,7 +89,3 @@ Example:
 * tmux-pain-control was developed against tmux 1.6 and dash 0.5 on Linux
 * tmux-pain-control will try to run in as many platforms & shells as possible
 * tmux-pain-control tries to be as [KISS](http://en.wikipedia.org/wiki/KISS_principle) as possible
-
-### License
-
-[MIT](LICENSE.md)
