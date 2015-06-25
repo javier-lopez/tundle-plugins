@@ -13,11 +13,11 @@ _get_digits_from_string_helper() {
 _get_tmux_option_helper() {
     [ -z "${1}" ] && return 1
 
-    case "${CURRENT_TMUX_VERSION}" in
-        19) _gtohelper__value="$(tmux show-option -gqv "${1}")" ;;
-        *)  #tmux => 1.6 && < 1.9, altough could work on even lower tmux versions
-            _gtohelper__value="$(tmux show-option -g|awk "/^${1}/ {gsub(/\'/,\"\");gsub(/\"/,\"\"); print \$2; exit;}")" ;;
-    esac
+    if [ "${CURRENT_TMUX_VERSION}" -ge "19" ]; then
+        _gtohelper__value="$(tmux show-option -gqv "${1}")"
+    else #tmux => 1.6 altough could work on even lower tmux versions
+        _gtohelper__value="$(tmux show-option -g|awk "/^${1}/ {gsub(/\'/,\"\");gsub(/\"/,\"\"); print \$2; exit;}")"
+    fi
 
     if [ -z "${_gtohelper__value}" ]; then
         [ -z "${2}" ] && return 1 || printf "%s\\n" "${2}"
@@ -82,19 +82,21 @@ _pane_resizing_bindings() {
 }
 
 _pane_split_bindings() {
-    case "${TMUX_VERSION}" in
-        19) tmux bind-key "|" split-window -h -c "#{pane_current_path}"
-            tmux bind-key "-" split-window -v -c "#{pane_current_path}" ;;
-        *)  tmux bind-key "|" split-window -h
-            tmux bind-key "-" split-window -v  ;;
-    esac
+    if [ "${TMUX_VERSION}" -ge "19" ]; then
+        tmux bind-key "|" split-window -h -c "#{pane_current_path}"
+        tmux bind-key "-" split-window -v -c "#{pane_current_path}"
+    else #tmux => 1.6 altough could work on even lower tmux versions
+        tmux bind-key "|" split-window -h
+        tmux bind-key "-" split-window -v
+    fi
 }
 
 _improve_new_window_binding() {
-    case "${TMUX_VERSION}" in
-        19) tmux bind-key "c" new-window -c "#{pane_current_path}" ;;
-        *)  tmux bind-key "c" new-window ;;
-    esac
+    if [ "${TMUX_VERSION}" -ge "19" ]; then
+        tmux bind-key "c" new-window -c "#{pane_current_path}"
+    else #tmux => 1.6 altough could work on even lower tmux versions
+        tmux bind-key "c" new-window
+    fi
 }
 
 if _supported_tmux_version; then
