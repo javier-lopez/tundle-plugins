@@ -13,7 +13,7 @@ _get_digits_from_string_helper() {
 _get_tmux_option_helper() {
     [ -z "${1}" ] && return 1
 
-    if [ "${CURRENT_TMUX_VERSION}" -ge "19" ]; then
+    if [ "${TMUX_VERSION}" -ge "19" ]; then
         _gtohelper__value="$(tmux show-option -gqv "${1}")"
     else #tmux => 1.6 altough could work on even lower tmux versions
         _gtohelper__value="$(tmux show-option -g|awk "/^${1}/ {gsub(/\'/,\"\");gsub(/\"/,\"\"); print \$2; exit;}")"
@@ -40,13 +40,13 @@ _get_tmux_environment_helper() {
 
 _supported_tmux_version() {
     _stversion__supported="$(_get_digits_from_string_helper "${SUPPORTED_TMUX_VERSION}")"
-    if [ -z "${CURRENT_TMUX_VERSION}" ] || [ -z "$(_get_tmux_environment_helper "TMUX_VERSION")" ]; then
-        CURRENT_TMUX_VERSION="$(_get_digits_from_string_helper "$(tmux -V)")"
-        export CURRENT_TMUX_VERSION #speed up consecutive calls
-        tmux set-environment -g TMUX_VERSION "${CURRENT_TMUX_VERSION}"
+    if [ -z "${TMUX_VERSION}" ] || [ -z "$(_get_tmux_environment_helper "TMUX_VERSION")" ]; then
+        TMUX_VERSION="$(_get_digits_from_string_helper "$(tmux -V)")"
+        export TMUX_VERSION #speed up consecutive calls
+        tmux set-environment -g TMUX_VERSION "${TMUX_VERSION}"
     fi
 
-    [ "${CURRENT_TMUX_VERSION}" -lt "${_stversion__supported}" ] && return 1 || return 0
+    [ "${TMUX_VERSION}" -lt "${_stversion__supported}" ] && return 1 || return 0
 }
 
 ###################################################################################
