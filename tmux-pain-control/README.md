@@ -2,6 +2,10 @@
 
 [Tmux-pain-control](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-pain-control) is a plugin for [Tundle](https://github.com/chilicuil/tundle) providing affordable tmux window management.
 
+<p align="center">
+<img src="./screenshots/pane_splitting.gif" alt="pane splitting"/>
+</p>
+
 It's based on [tmux-plugins/tmux-pain-control](https://github.com/tmux-plugins/tmux-pain-control) with personal sauce and relaxed dependency requirements.
 
 ## Quick start
@@ -22,9 +26,9 @@ It's based on [tmux-plugins/tmux-pain-control](https://github.com/tmux-plugins/t
 
 Notice most of the bindings emulate vim cursor movements.
 
-<img align="right" src="/screenshots/pane_navigation.gif" alt="pane navigation"/>
+### Navigation
 
-**Navigation**
+<img align="right" src="./screenshots/pane_navigation.gif" alt="pane navigation"/>
 
 - `prefix + h` and `prefix + C-h`<br/>
   select pane on the left
@@ -37,9 +41,9 @@ Notice most of the bindings emulate vim cursor movements.
 
 **Note**: This overrides tmux's default binding for toggling between last active windows, `prefix + l`.  [tmux-pain-control](https://github.com/tmux-plugins/tmux-pain-control) gives you a better binding for that, `prefix + a` (if your prefix is `C-a`).
 
-<img align="right" src="/screenshots/pane_resizing.gif" alt="pane resizing"/>
+### Resizing panes
 
-**Resizing panes**
+<img align="right" src="./screenshots/pane_resizing.gif" alt="pane resizing"/>
 
 - `prefix + shift + h`<br/>
   resize current pane 5 cells to the left
@@ -55,9 +59,9 @@ These mappings are `repeatable`.
 The amount of cells to resize can be configured with `@pane_resize` option. See
 [configuration section](#configuration) for the details.
 
-<img align="right" src="/screenshots/pane_splitting.gif" alt="pane splitting"/>
+### Splitting
 
-**Splitting panes**
+<img align="right" src="./screenshots/pane_splitting.gif" alt="pane splitting"/>
 
 - `prefix + |`<br/>
   split current pane horizontally
@@ -66,7 +70,7 @@ The amount of cells to resize can be configured with `@pane_resize` option. See
 
 Newly created pane always has the same path as the original pane.
 
-**Swapping windows**
+### Swapping windows
 
 - `prefix + <` - moves current window one position to the left
 - `prefix + >` - moves current window one position to the right
