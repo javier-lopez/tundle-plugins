@@ -1,0 +1,11 @@
+FIX
+
+* On tmux 1.6 tmux-resurrect only recover a single session due to switch-client limitated scope
+* Saving on tmux 1.9 and recovering on tmux 1.6 could break "advanced" layout themes
+* Add back travis badget
+
+MIGRATE TO SH
+
+* tests/
+* review tmux-test
+

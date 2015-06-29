@@ -91,9 +91,13 @@ _pane_split_bindings() {
     if [ "${TMUX_VERSION}" -ge "19" ]; then
         tmux bind-key "|" split-window -h -c "#{pane_current_path}"
         tmux bind-key "-" split-window -v -c "#{pane_current_path}"
-    else #tmux => 1.6 altough could work on even lower tmux versions
+    else #tmux => 1.6 altough could work on lower versions
         tmux bind-key "|" split-window -h
         tmux bind-key "-" split-window -v
+
+        #set -g default-path "~"
+        #bind % set default-path "" \; split-window -h \; set -u default-path
+        #bind '"' set default-path "" \; split-window -v \; set -u default-path
     fi
 }
 
