@@ -33,7 +33,7 @@ if _supported_tmux_version_helper; then
         else
             #due to tmux limitations on versions < 1.8 yanking to the system clipboard is only possible traditionally in two steps
             #1. copy to tmux-buffer in copy-mode
-            #2. sync tmux-buffer with the system clipboard (prefix+c-y on this plugin)
+            #2. sync tmux-buffer with the system clipboard
 
             #radical hack to do the above in one keystroke, http://unix.stackexchange.com/a/44602/63300
             for copy_mode_key in $(tmux list-keys | awk '/copy-mode$/ {print $2}'); do
