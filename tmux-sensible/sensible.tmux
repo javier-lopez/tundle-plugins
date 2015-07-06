@@ -26,6 +26,26 @@ _get_tmux_option_helper() {
     fi
 }
 
+_get_tmux_environment_helper() {
+    [ -z "${1}" ] && return 1
+
+    _gtehelper__value="$(tmux show-environment -g|awk -F"=" "/^${1}=/ {print \$2}")"
+
+    if [ -z "${_gtehelper__value}" ]; then
+        [ -z "${2}" ] && return 1 || printf "%s\\n" "${2}"
+    else
+        printf "%s\\n" "${_gtehelper__value}"
+    fi
+}
+
+_get_tmux_option_global_helper() {
+    [ -z "${1}" ] && return 1
+    _gtoghelper__option="$(_get_tmux_environment_helper "${1}")"
+    [ -z "${_gtoghelper__option}" ] && \
+        _get_tmux_option_helper "${1}" "${2}" || \
+        printf "%s" "${_gtoghelper__option}"
+}
+
 _get_tmux_server_option_helper() {
     [ -z "${1}" ] && return 1
 
@@ -39,18 +59,6 @@ _get_tmux_server_option_helper() {
         [ -z "${2}" ] && return 1 || printf "%s\\n" "${2}"
     else
         printf "%s\\n" "${_gtsohelper__value}"
-    fi
-}
-
-_get_tmux_environment_helper() {
-    [ -z "${1}" ] && return 1
-
-    _gtehelper__value="$(tmux show-environment -g|awk -F"=" "/^${1}=/ {print \$2}")"
-
-    if [ -z "${_gtehelper__value}" ]; then
-        [ -z "${2}" ] && return 1 || printf "%s\\n" "${2}"
-    else
-        printf "%s\\n" "${_gtehelper__value}"
     fi
 }
 
@@ -71,6 +79,11 @@ _supported_tmux_version() {
 
 # used to match output from `tmux list-keys`
 KEY_BINDING_REGEX="bind-key[[:space:]]\+\(-r[[:space:]]\+\)\?\(-T prefix[[:space:]]\+\)\?"
+# used to match output from `tmux list-keys -t key-table`
+KEY_BINDING_REGEX_KEY_TABLE="bind-key[[:space:]]\+-t[[:space:]]\+\(vi\|emacs\)-copy[[:space:]]\+"
+
+sensible_mouse_default="y"
+sensible_mouse_option="@sensible_mouse"
 
 _is_osx() {
     [ "$(uname)" = "Darwin" ]
@@ -105,11 +118,10 @@ _key_binding_not_set() {
 
 _key_binding_not_changed() {
     [ -z "${2}" ] && return 1
-    if tmux list-keys | grep "${KEY_BINDING_REGEX}${1}[[:space:]]\+${2}" >/dev/null; then
-        # key still has the default binding
-        return 0
+    if [ -z "${3}" ]; then
+        tmux list-keys | grep "${KEY_BINDING_REGEX}${1}[[:space:]]\+${2}" >/dev/null
     else
-        return 1
+        tmux list-keys -t "${3}"| grep "${KEY_BINDING_REGEX_KEY_TABLE}${1}[[:space:]]\+${2}" >/dev/null
     fi
 }
 
@@ -166,12 +178,15 @@ _set_tmux_sensible_settings() {
         tmux set-option -g prefix C-a
     fi
 
+    # default to vi-copy mode
     tmux set-option -g mode-keys vi
 
     # enable mouse features for terminals that support it
-    tmux set-option -g mouse-resize-pane on
-    tmux set-option -g mouse-select-pane on
-    tmux set-option -g mouse-select-window on
+    if [ "$(_get_tmux_option_global_helper "${sensible_mouse_option}" "${sensible_mouse_default}")" = "y" ]; then
+        tmux set-option -g mouse-resize-pane on
+        tmux set-option -g mouse-select-pane on
+        tmux set-option -g mouse-select-window on
+    fi
 
     # DEFAULT KEY BINDINGS
 
@@ -210,6 +225,23 @@ _set_tmux_sensible_settings() {
         tmux bind-key R run-shell '
             tmux source-file ~/.tmux.conf > /dev/null;
             tmux display-message "Sourced .tmux.conf!"'
+    fi
+
+    # vi like experience for vi-copy mode
+    if _key_binding_not_set "Escape"; then
+        tmux bind Escape copy-mode
+
+        tmux bind -t vi-copy Home start-of-line
+        tmux bind -t vi-copy End end-of-line
+    fi
+
+    if _key_binding_not_changed Space begin-selection "vi-copy"; then
+        tmux bind -t vi-copy v begin-selection
+        tmux bind -t vi-copy V begin-selection
+    fi
+
+    if _key_binding_not_changed Enter copy-selection "vi-copy"; then
+        tmux bind -t vi-copy y copy-selection
     fi
 }
 
