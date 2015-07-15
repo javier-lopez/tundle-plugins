@@ -39,7 +39,7 @@ Notice most of the bindings emulate vim cursor movements.
 - `prefix + l` and `prefix + C-l`<br/>
   select pane on the right
 
-**Note**: This overrides tmux's default binding for toggling between last active windows, `prefix + l`.  [tmux-pain-control](https://github.com/tmux-plugins/tmux-pain-control) gives you a better binding for that, `prefix + a` (if your prefix is `C-a`).
+**Note**: This overrides tmux's default binding for toggling between last active windows, `prefix + l`.  [tmux-pain-control](https://github.com/chilicuil/tundle-plugins/tmux-pain-control) gives you a better binding for that, `prefix + a` (if your prefix is `C-a`).
 
 ### Resizing panes
 

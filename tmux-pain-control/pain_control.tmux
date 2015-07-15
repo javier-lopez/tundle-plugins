@@ -15,7 +15,7 @@ _get_tmux_option_helper() {
 
     if [ "${TMUX_VERSION-16}" -ge "19" ]; then
         _gtohelper__value="$(tmux show-option -gqv "${1}")"
-    else #tmux => 1.6 altough could work on even lower tmux versions
+    else
         _gtohelper__value="$(tmux show-option -g|awk "/^${1}/ {gsub(/\'/,\"\");gsub(/\"/,\"\"); print \$2; exit;}")"
     fi
 
@@ -81,17 +81,17 @@ _window_move_bindings() {
 
 _pane_resizing_bindings() {
     _prbindings__pane_resize="$(_get_tmux_option_global_helper "@pane_resize" "${default_pane_resize}")"
-    tmux bind-key -r H resize-pane -L "$_prbindings__pane_resize"
-    tmux bind-key -r J resize-pane -D "$_prbindings__pane_resize"
-    tmux bind-key -r K resize-pane -U "$_prbindings__pane_resize"
-    tmux bind-key -r L resize-pane -R "$_prbindings__pane_resize"
+    tmux bind-key -r H resize-pane -L "${_prbindings__pane_resize}"
+    tmux bind-key -r J resize-pane -D "${_prbindings__pane_resize}"
+    tmux bind-key -r K resize-pane -U "${_prbindings__pane_resize}"
+    tmux bind-key -r L resize-pane -R "${_prbindings__pane_resize}"
 }
 
 _pane_split_bindings() {
     if [ "${TMUX_VERSION}" -ge "19" ]; then
         tmux bind-key "|" split-window -h -c "#{pane_current_path}"
         tmux bind-key "-" split-window -v -c "#{pane_current_path}"
-    else #tmux => 1.6 altough could work on lower versions
+    else
         tmux bind-key "|" split-window -h
         tmux bind-key "-" split-window -v
 
@@ -104,7 +104,7 @@ _pane_split_bindings() {
 _improve_new_window_binding() {
     if [ "${TMUX_VERSION}" -ge "19" ]; then
         tmux bind-key "c" new-window -c "#{pane_current_path}"
-    else #tmux => 1.6 altough could work on even lower tmux versions
+    else
         tmux bind-key "c" new-window
     fi
 }
