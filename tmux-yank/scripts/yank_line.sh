@@ -9,7 +9,7 @@ CURRENT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 # sleep is added.
 _sleep_in_remote_shells() {
     case "${1}" in
-        ssh|mosh) sleep "$REMOTE_SHELL_WAIT_TIME" ;;
+        ssh|mosh) sleep "${REMOTE_SHELL_WAIT_TIME}" ;;
     esac
 }
 

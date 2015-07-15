@@ -72,7 +72,6 @@ if _supported_tmux_version_helper; then
             for mode in vi-copy emacs-copy; do
                 tmux bind -t "${mode}" "${yank_key}" copy-selection
             done
-
         fi
         tmux bind-key "${yank_line_key}" run-shell "${CURRENT_DIR}/scripts/yank_line.sh"
     else
