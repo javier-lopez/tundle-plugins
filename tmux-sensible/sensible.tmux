@@ -85,10 +85,6 @@ KEY_BINDING_REGEX_KEY_TABLE="bind-key[[:space:]]\+-t[[:space:]]\+\(vi\|emacs\)-c
 sensible_mouse_default="y"
 sensible_mouse_option="@sensible_mouse"
 
-_is_osx() {
-    [ "$(uname)" = "Darwin" ]
-}
-
 # returns prefix key, e.g. 'C-a'
 _prefix() {
     _get_tmux_option_helper "prefix"
@@ -109,11 +105,7 @@ _server_option_value_not_changed() {
 
 _key_binding_not_set() {
     [ -z "${1}" ] && return 1
-    if tmux list-keys | grep "${KEY_BINDING_REGEX}${1}[[:space:]]" >/dev/null; then
-        return 1
-    else
-        return 0
-    fi
+    tmux list-keys | grep "${KEY_BINDING_REGEX}${1}[[:space:]]" >/dev/null
 }
 
 _key_binding_not_changed() {
@@ -153,7 +145,7 @@ _set_tmux_sensible_settings() {
     fi
 
     # required (only) on OS X
-    if _is_osx && command -v "reattach-to-user-namespace" >/dev/null 2>&1 && \
+    if [ "$(uname)" = "Darwin" ] && command -v "reattach-to-user-namespace" >/dev/null 2>&1 && \
         _option_value_not_changed "default-command" ""; then
         tmux set-option -g default-command "reattach-to-user-namespace -l $SHELL"
     fi
