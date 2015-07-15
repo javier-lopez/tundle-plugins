@@ -28,9 +28,7 @@ _get_tmux_option_helper() {
 
 _get_tmux_environment_helper() {
     [ -z "${1}" ] && return 1
-
-    _gtehelper__value="$(tmux show-environment -g|awk -F"=" "/^${1}=/ {print \$2}")"
-
+    _gtehelper__value="$(tmux show-environment -g|awk "/^${1}=/ {sub(/^${1}=/, \"\");print}")"
     if [ -z "${_gtehelper__value}" ]; then
         [ -z "${2}" ] && return 1 || printf "%s\\n" "${2}"
     else

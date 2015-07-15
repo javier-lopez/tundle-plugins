@@ -105,14 +105,14 @@ _jump() {
 
     _jump__result_line="$(_get_line "${_jump__search_file}" "${_jump__search_position}")" #xnumber:ynumber:string
     _jump__x="${_jump__result_line%%:*}" #get first number in xnumber:ynumber:string
-    _jump__x="$((_jump__x - 1))" #tmux starts counting at 0
+    _jump__x="$(($_jump__x - 1))" #tmux starts counting at 0
 
     _jump__string="${_jump__result_line#*:}"
     _jump__string="${_jump__string#*:}" #get string in xnumber:ynumber:string
 
     _jump__y="${_jump__result_line#*:}"
     _jump__y="${_jump__y%%:*}" #get second number in xnumber:ynumber:string
-    _jump__y="$((_jump__y - 1))"
+    _jump__y="$(($_jump__y - 1))"
 
     #enter copy mode
     tmux copy-mode
