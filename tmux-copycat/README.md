@@ -33,6 +33,8 @@ Example search entries:
 * `foo` - searches for string `foo`
 * `[0-9]+` - regex search for numbers
 
+Notes:
+
 * Awk is used for searching.
 * Searches are case insensitive.
 
@@ -64,7 +66,7 @@ Copying a highlighted match will take you "out" of copycat mode. Paste with
 
 Copying highlighted matches can be enhanced with
 
-[tundle/tmux yank](https://github.com/chilicuil/tundle-plugins/tmux-copycat).
+* [tundle/tmux yank](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-yank).
 
 ### Configuration
 
