@@ -3,6 +3,9 @@ SUPPORTED_TMUX_VERSION="1.6"
 # stored search variable prefix
 COPYCAT_VAR_PREFIX="@copycat_search"
 
+default_copycat_cyclic="y"
+copycat_cyclic_option="@copycat_cyclic"
+
 default_copycat_search_key="/"
 copycat_search_option="@copycat_search"
 

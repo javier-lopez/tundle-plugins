@@ -159,8 +159,8 @@ _pane_unique_id_helper() {
         tmux display-message -p "#{session_id}-#{window_index}-#{pane_index}" | sed 's/\$//'
     else
         _puid__session_id="$(tmux list-sessions | awk '/attached/ {sub(/:/,""); print $1}')"
-        _puid__window_id="$(tmux list-windows | awk '/attached/ {sub(/:/,""); print $1}')"
-        _puid__pane_id="$(tmux list-panes | awk '/attached/ {sub(/:/,""); print $1}')"
+        _puid__window_id="$(tmux list-windows | awk '/active/ {sub(/:/,""); print $1}')"
+        _puid__pane_id="$(tmux list-panes | awk '/active/ {sub(/:/,""); print $1}')"
         printf "%s" "${_puid__session_id}-${_puid__window_id}-${_puid__pane_id}"
     fi
 }

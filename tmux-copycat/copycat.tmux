@@ -42,12 +42,13 @@ if _supported_tmux_version_helper; then
 
     for var in $(_get_copycat_search_vars_helper); do
         pattern="$(_get_tmux_option_global_helper "${var}")"
-        tmux bind-key "${var##${COPYCAT_VAR_PREFIX}_}" run-shell "${CURRENT_DIR}/scripts/copycat_mode_start.sh '${pattern}'"
+        tmux bind-key "${var##${COPYCAT_VAR_PREFIX}_}" run-shell \
+            "${CURRENT_DIR}/scripts/copycat_mode_quit.sh; ${CURRENT_DIR}/scripts/copycat_mode_start.sh '${pattern}'"
     done
 
     #copycat search default bindings
     for key in $(_get_tmux_option_global_helper "${copycat_search_option}" "${default_copycat_search_key}"); do
-        tmux bind-key "${key}" run-shell "${CURRENT_DIR}/scripts/copycat_search.sh"
+        tmux bind-key "${key}" run-shell "${CURRENT_DIR}/scripts/copycat_mode_quit.sh; ${CURRENT_DIR}/scripts/copycat_search.sh"
     done
 else
     #should errors will be displayed per plugin?

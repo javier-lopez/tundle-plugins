@@ -10,8 +10,9 @@ _copycat_generate_results(){
         [ -z "${1}" ] && return 1
         _cgresults__copycat_fname="$(_get_copycat_filename_helper)"
 
-        #delete old files
+        #remove old files and reset settings
         rm -f "${_cgresults__copycat_fname}"
+        tmux set-environment -g "@copycat_first_invocation" "0"
 
         #generate copycat directory
         _mkdir_p_helper "$(_get_tmp_copycat_dir_helper)"

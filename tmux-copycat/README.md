@@ -87,6 +87,11 @@ Configuration is not required, but modifies the plugin behavior.
         #options: any key
         setenv -g @copycat_prev 'N'
 
+* Cyclic matches
+
+        #options: y/n
+        setenv -g @copycat_cyclic 'y'
+
 Other options are defined in [./scripts/vars.sh](./scripts/vars.sh)
 
 ### Limitations

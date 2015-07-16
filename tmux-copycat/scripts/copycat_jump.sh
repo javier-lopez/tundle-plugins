@@ -76,26 +76,31 @@ _select() {
 }
 
 _get_next_search_position() {
-    #$1 => copycat results file
-    #$2 => current search position
+    [ -z "${2}" ] && return 1
+    _gnsposition__cyclic="$(_get_tmux_option_global_helper "${copycat_cyclic_option}" "${default_copycat_cyclic}")"
     if [ "${NEXT_PREV}" = "next" ]; then
-        _gnpnumber__total_results="$(_number_of_lines_in_file "${1}")"
-        if [ "${2}" -eq "${_gnpnumber__total_results}" ]; then
-            #position can't go beyond the last result
-            _gnpnumber__new_position="${2}"
+        if [ "${1}" -eq "${2}" ]; then
+            if [ "${_gnsposition__cyclic}" = "n" ]; then
+                _gnsposition__result="${2}" #don't go beyond the last result
+            else
+                _gnsposition__result="1" #back to beginning
+            fi
         else
-            _gnpnumber__new_position="$(($2 + 1))"
+            _gnsposition__result="$(($2 + 1))"
         fi
     elif [ "${NEXT_PREV}" = "prev" ]; then
         if [ "${2}" -eq "1" ]; then
-            #position can't go below 1
-            _gnpnumber__new_position="1"
+            if [ "${_gnsposition__cyclic}" = "n" ]; then
+                _gnsposition__result="1" #don't go beyond the first result
+            else
+                _gnsposition__result="${1}" #go to last result
+            fi
         else
-            _gnpnumber__new_position="$(($2 - 1))"
+            _gnsposition__result="$(($2 - 1))"
         fi
     fi
 
-    printf "%s" "${_gnpnumber__new_position}"
+    printf "%s" "${_gnsposition__result}"
 }
 
 _jump() {
@@ -131,27 +136,31 @@ _jump() {
 
 _notify_first_last_match() {
     _nflmatch__msg_duration="1500"
-    #if position didn't change, we are either on a 'first' or 'last' match
+    #if position is equal to max number of results we're on the last match
     if [ "${1}" -eq "${2}" ]; then
-        if [ "${NEXT_PREV}" = "next" ]; then
-            _display_message_helper "Last match!"  "${_nflmatch__msg_duration}"
-        elif [ "${NEXT_PREV}" = "prev" ]; then
-            _display_message_helper "First match!" "${_nflmatch__msg_duration}"
-        fi
+        _display_message_helper "Last match!"  "${_nflmatch__msg_duration}"
+    elif [ "${2}" -eq "1" ]; then
+        _display_message_helper "First match!" "${_nflmatch__msg_duration}"
     fi
 }
 
 if _in_copycat_mode_helper; then
     copycat_fname="$(_get_copycat_filename_helper)"
     current_search_position="$(_get_tmux_option_global_helper "@copycat_position_$(_pane_unique_id_helper)" "0")"
-    next_search_position="$(_get_next_search_position "${copycat_fname}" "${current_search_position}")"
+    copycat_fname_len="$(_number_of_lines_in_file "${copycat_fname}")"
+    next_search_position="$(_get_next_search_position "${copycat_fname_len}" "${current_search_position}")"
 
     #export PS4=">> "; set -x #help debugging
     _jump "${copycat_fname}" "${next_search_position}"
     #set +x
-    _notify_first_last_match "${current_search_position}" "${next_search_position}"
+
+    if [ "$(_get_tmux_option_global_helper "@copycat_first_invocation")" = "1" ]; then
+        #skip noise in the very first match
+        _notify_first_last_match "${copycat_fname_len}" "${next_search_position}"
+    fi
 
     tmux set-environment -g "@copycat_position_$(_pane_unique_id_helper)" "${next_search_position}"
+    tmux set-environment -g "@copycat_first_invocation" "1"
 fi
 
 # vim: set ts=8 sw=4 tw=0 ft=sh :
