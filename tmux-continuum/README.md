@@ -3,7 +3,7 @@
 [Tmux-continuum](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-continuum) is a plugin for [Tundle](https://github.com/chilicuil/tundle) for continuous tmux usage.
 
 <p align="center">
-<a href="https://vimeo.com/102039099" target="_blank"><img src="./img/screencast_img.png" alt="tmux-continuum video"/></a>
+<img src="./img/tmux-continuum.gif" alt="tmux-continuum gif"/></a>
 </p>
 
 It's based on [tmux-plugins/tmux-continuum](https://github.com/tmux-plugins/tmux-continuum) with personal sauce and relaxed dependency requirements.
