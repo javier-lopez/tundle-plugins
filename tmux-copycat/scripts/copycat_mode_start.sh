@@ -56,9 +56,21 @@ _copycat_mode_bindings(){
     #yank integration for older tmux versions without copy-pipe
     if [ "${TMUX_VERSION-16}" -lt "18" ]; then
         TMUX_PLUGIN_MANAGER_PATH="$(_get_tmux_environment_helper "TMUX_PLUGIN_MANAGER_PATH")"
-        if [ -f "${TMUX_PLUGIN_MANAGER_PATH}/tmux-yank/scripts/yank_copycat_16.sh" ]; then
-            . "${TMUX_PLUGIN_MANAGER_PATH}/tmux-yank/scripts/yank_copycat_16.sh"
+
+        #default case with tundle git subdirectories
+        if [ -f "${TMUX_PLUGIN_MANAGER_PATH}/tmux-yank/tmux-yank/yank.tmux" ]; then
+            tmux_yank_dir="${TMUX_PLUGIN_MANAGER_PATH}/tmux-yank/tmux-yank/"
+        elif [ -f "${TMUX_PLUGIN_MANAGER_PATH}/tmux-yank/yank.tmux" ]; then
+            tmux_yank_dir="${TMUX_PLUGIN_MANAGER_PATH}/tmux-yank/"
         fi
+
+        if [ -f "${TMUX_PLUGIN_MANAGER_PATH}/tmux-copycat/tmux-copycat/copycat.tmux" ]; then
+            tmux_copycat_dir="${TMUX_PLUGIN_MANAGER_PATH}/tmux-copycat/tmux-copycat/"
+        elif [ -f "${TMUX_PLUGIN_MANAGER_PATH}/tmux-copycat/copycat.tmux" ]; then
+            tmux_copycat_dir="${TMUX_PLUGIN_MANAGER_PATH}/tmux-copycat/"
+        fi
+
+        . "${tmux_yank_dir}/scripts/yank_copycat_16.sh"
     fi
 }
 
