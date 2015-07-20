@@ -5,6 +5,9 @@ default_save_key="C-s"
 save_option="@resurrect-save"
 save_path_option="@resurrect-save-script-path"
 
+save_max_option="@resurrect-save-max"
+save_max_default="3"
+
 default_restore_key="C-r"
 restore_option="@resurrect-restore"
 restore_path_option="@resurrect-restore-script-path"

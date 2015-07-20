@@ -13,9 +13,13 @@ _set_default_key_bindings() {
 }
 
 _set_default_options() {
-    tmux set-env -g "${restore_process_strategy_option}irb" "default_strategy"   >/dev/null
-    tmux set-env -g "${save_path_option}"    "${CURRENT_DIR}/scripts/save.sh"    >/dev/null
-    tmux set-env -g "${restore_path_option}" "${CURRENT_DIR}/scripts/restore.sh" >/dev/null
+    tmux set-environment -g "${restore_process_strategy_option}irb" "default_strategy"   >/dev/null
+    tmux set-environment -g "${save_path_option}"    "${CURRENT_DIR}/scripts/save.sh"    >/dev/null
+    tmux set-environment -g "${restore_path_option}" "${CURRENT_DIR}/scripts/restore.sh" >/dev/null
+    if [ "${TMUX_VERSION-16}" -ge "19" ]; then #compatibility layer with tpm/tmux-resurrect
+        tmux set-option -g "${save_path_option}"    "${CURRENT_DIR}/scripts/save.sh"    >/dev/null
+        tmux set-option -g "${restore_path_option}" "${CURRENT_DIR}/scripts/restore.sh" >/dev/null
+    fi
 }
 
 if _supported_tmux_version_helper; then

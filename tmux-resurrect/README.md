@@ -3,7 +3,7 @@
 [Tmux-resurrect](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-resurrect) is a plugin for [Tundle](https://github.com/chilicuil/tundle) who allows to save/recover tmux sessions.
 
 <p align="center">
-<a href="https://vimeo.com/104763018" target="_blank"><img src="./video/screencast_img.png" alt="tmux-resurrect video"/></a>
+<a href="https://vimeo.com/104763018" target="_blank"><img src="./img/screencast_img.png" alt="tmux-resurrect video"/></a>
 </p>
 
 It's based on [tmux-plugins/tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect) with personal sauce and relaxed dependency requirements.
@@ -56,8 +56,7 @@ Only a conservative list of programs is restored by default:
 
         setenv -g @resurrect-processes 'irb pry "~rails server" "~rails console"'
 
-- Use `->` to specify a command to be used when restoring a program (useful if
-  the default restore command fails ):
+- Use `->` to specify a command to be used when restoring a program (useful if the default restore command fails):
 
         setenv -g @resurrect-processes 'some_program "grunt->grunt development"'
 
@@ -83,6 +82,12 @@ Only a conservative list of programs is restored by default:
 By default Tmux environment is saved to a file in the `~/.tmux/resurrect` dir. To change it edit:
 
     setenv -g @resurrect-dir '/some/path'
+
+#### Resurrect session files
+
+By default tmux-resurrect keeps the latest 25 sessions around (~100KB), to change this value edit:
+
+    setenv -g @resurrect-save-max '25'
 
 #### Restoring bash history (experimental)
 

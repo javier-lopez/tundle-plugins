@@ -287,7 +287,8 @@ if _supported_tmux_version_helper; then
     fi
 
     resurrect_file_path="$(_resurrect_file_path_helper)"
-    _mkdir_p_helper "$(_resurrect_dir_helper)"
+    resurrect_dir_path="$(_resurrect_dir_helper)"
+    _mkdir_p_helper "${resurrect_dir_path}"
     _fetch_and_dump_grouped_sessions > "${resurrect_file_path}"
     _dump_panes   >> "${resurrect_file_path}"
     _dump_windows >> "${resurrect_file_path}"
@@ -303,6 +304,12 @@ if _supported_tmux_version_helper; then
     if _save_bash_history_option_on_helper; then
         _dump_bash_history
     fi
+
+    #remove old saved sessions, http://stackoverflow.com/a/12067078/890858
+    resurrect_max_files="$(_get_tmux_option_global_helper "${save_max_option}" "${save_max_default}")"
+    find "${resurrect_dir_path}" -type f -printf '%T+ %p\n' | sort -r | \
+        awk 'NR>'"${resurrect_max_files}"'{$1=""; sub(/^[ \t]+/, ""); print}' | \
+        sed 's/.*/"&"/' | xargs rm -rf
 
     if [ "${1}" != "quiet" ]; then
         _stop_spinner_helper
