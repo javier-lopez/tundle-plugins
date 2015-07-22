@@ -103,7 +103,11 @@ _server_option_value_not_changed() {
 
 _key_binding_not_set() {
     [ -z "${1}" ] && return 1
-    tmux list-keys | grep "${KEY_BINDING_REGEX}${1}[[:space:]]" >/dev/null
+    if tmux list-keys | grep "${KEY_BINDING_REGEX}${1}[[:space:]]" >/dev/null; then
+        return 1
+    else
+        return 0
+    fi
 }
 
 _key_binding_not_changed() {
