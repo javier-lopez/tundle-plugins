@@ -64,13 +64,20 @@ _copycat_mode_bindings(){
             tmux_yank_dir="${TMUX_PLUGIN_MANAGER_PATH}/tmux-yank/"
         fi
 
+        if [ -f "${TMUX_PLUGIN_MANAGER_PATH}/tmux-open/tmux-open/open.tmux" ]; then
+            tmux_open_dir="${TMUX_PLUGIN_MANAGER_PATH}/tmux-open/tmux-open/"
+        elif [ -f "${TMUX_PLUGIN_MANAGER_PATH}/tmux-open/open.tmux" ]; then
+            tmux_open_dir="${TMUX_PLUGIN_MANAGER_PATH}/tmux-open/"
+        fi
+
         if [ -f "${TMUX_PLUGIN_MANAGER_PATH}/tmux-copycat/tmux-copycat/copycat.tmux" ]; then
             tmux_copycat_dir="${TMUX_PLUGIN_MANAGER_PATH}/tmux-copycat/tmux-copycat/"
         elif [ -f "${TMUX_PLUGIN_MANAGER_PATH}/tmux-copycat/copycat.tmux" ]; then
             tmux_copycat_dir="${TMUX_PLUGIN_MANAGER_PATH}/tmux-copycat/"
         fi
 
-        . "${tmux_yank_dir}/scripts/yank_copycat_16.sh"
+        [ -d "${tmux_yank_dir}" ] && . "${tmux_yank_dir}/scripts/yank_copycat_16.sh"
+        [ -d "${tmux_open_dir}" ] && . "${tmux_open_dir}/scripts/open_copycat_16.sh"
     fi
 }
 

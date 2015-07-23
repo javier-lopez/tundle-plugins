@@ -1,12 +1,12 @@
-#=== awk vs gawk ===
-#https://github.com/tmux-plugins/tmux-copycat/issues/61
+#!/bin/sh
+
+#awk vs gawk, https://github.com/tmux-plugins/tmux-copycat/issues/61
 AWK_CMD='awk'
 if command -v "gawk" > /dev/null 2>&1; then
     AWK_CMD='gawk'
 fi
 
-#=== general helpers ===
-
+#general helpers
 _mkdir_p_helper() { #portable mkdir -p
     for _mphelper__dir; do
         _mphelper__IFS="${IFS}"
@@ -81,8 +81,6 @@ _supported_tmux_version_helper() {
     [ "${TMUX_VERSION}" -lt "${_stversion__supported}" ] && return 1 || return 0
 }
 
-#Ensures a message is displayed for 5 seconds in tmux prompt.
-#Does not override the 'display-time' tmux option.
 _display_message_helper() {
     if [ "${#}" -eq 2 ]; then
         _dmhelper__time="${2}"
@@ -98,10 +96,10 @@ _display_message_helper() {
     tmux set-option -g display-time "${_dmhelper__saved_time}" >/dev/null
 }
 
-#=== copycat mode specific helpers ===
+#copycat mode specific helpers
 _get_copycat_search_vars_helper() {
-    _gcsvars__vars="$(tmux show-env -g | \grep -i "^${COPYCAT_VAR_PREFIX}_" | cut -d '=' -f1 | xargs)"
-    [ -z "${_gcsvars__vars}" ] && _gcsvars__vars="$(tmux show-options -g | grep -i "^${COPYCAT_VAR_PREFIX}_" | cut -d ' ' -f1 | xargs)"
+    _gcsvars__vars="$(tmux show-environment -g | awk -F"=" '/^'"${COPYCAT_VAR_PREFIX}_"'/ {print $1}')"
+    [ -z "${_gcsvars__vars}" ] && _gcsvars__vars="$(tmux show-options -g | awk '/^'"${COPYCAT_VAR_PREFIX}_"'/ {print $1}')"
     printf "%s" "${_gcsvars__vars}"
 }
 
@@ -171,6 +169,62 @@ _copycat_mode_var_helper() {
 
 _get_tmp_copycat_dir_helper() {
     printf "%s" "${TMPDIR:-/tmp}/tmux-$(id -u)-copycat"
+}
+
+#copycat integration functions for tmux <= 1.7, without copy-pipe
+#these functions are used by external scripts, eg: tmux-yank, tmux-open
+
+#create virtual keybindings, eg: @copycat-mode-key-y => "tmux save-buffer - | ${clipboard_cmd}"
+_copycat_mode_add_helper() {
+    [ -z "${1}" ] && return 0
+    [ -z "${2}" ] && return 0
+    case "${2}" in
+        msg:*) tmux set-environment -g "@copycat-mode-verbose-before-${1}" "${2##msg:}" ;;
+            *) tmux set-environment -g "@copycat-mode-key-${1}" "${2}" ;;
+    esac
+
+    [ -z "${3}" ] && return 0
+    case "${3}" in
+        msg:*) tmux set-environment -g "@copycat-mode-verbose-after-${1}" "${3##msg:}" ;;
+            *) tmux set-environment -g "@copycat-mode-key-${1}" "${3}" ;;
+    esac
+}
+
+#create a gigantic keybinding mixing the virtual keybindings upon copycat_mode start/quit
+_copycat_mode_generate_helper() {
+    _tcmghelper__keys="$(tmux show-environment -g | awk -F"=" '/^@copycat-mode-key/ {print $1}')"
+    _tcmghelper__body=""; _tcmghelper__footer=""
+
+    for _tcmghelper__key in ${_tcmghelper__keys}; do
+        _tcmghelper__body="${_tcmghelper__body}"' tmux bind-key -n '"${_tcmghelper__key##@copycat-mode-key-}"' run "tmux send-keys Enter;'
+
+        _tcmghelper__msg_before="$(_get_tmux_environment_helper "@copycat-mode-verbose-before-${_tcmghelper__key##@copycat-mode-key-}")"
+        if [ "${_tcmghelper__msg_before}" ]; then
+            _tcmghelper__body="${_tcmghelper__body} tmux display-message '${_tcmghelper__msg_before}';"
+        fi
+        _tcmghelper__body="${_tcmghelper__body} $(_get_tmux_environment_helper "${_tcmghelper__key}");"
+        _tcmghelper__body="${_tcmghelper__body} ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh;"
+        _tcmghelper__msg_after="$(_get_tmux_environment_helper "@copycat-mode-verbose-after-${_tcmghelper__key##@copycat-mode-key-}")"
+        if [ "${_tcmghelper__msg_after}" ]; then
+            _tcmghelper__body="${_tcmghelper__body} tmux display-message '${_tcmghelper__msg_after}';"
+        fi
+
+        for _tcmghelper__key in ${_tcmghelper__keys}; do
+            _tcmghelper__body="${_tcmghelper__body} tmux unbind-key -n ${_tcmghelper__key##@copycat-mode-key-}; "
+        done
+        _tcmghelper__body="${_tcmghelper__body} "'";'
+    done
+
+    for _tcmghelper__quit_key in q C-c; do
+        _tcmghelper__footer="${_tcmghelper__footer}"' tmux bind-key -n '" ${_tcmghelper__quit_key}"' run "tmux send-keys '"${_tcmghelper__quit_key};"
+        for _tcmghelper__key in ${_tcmghelper__keys}; do
+            _tcmghelper__footer="${_tcmghelper__footer} tmux unbind-key -n ${_tcmghelper__key##@copycat-mode-key-}; "
+        done
+        _tcmghelper__footer="${_tcmghelper__footer} ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh;"'";'
+    done
+
+    #don't try this at home
+    sh -c "${_tcmghelper__header} ${_tcmghelper__body} ${_tcmghelper__footer}"
 }
 
 # vim: set ts=8 sw=4 tw=0 ft=sh :

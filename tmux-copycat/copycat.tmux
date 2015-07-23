@@ -40,6 +40,7 @@ if _supported_tmux_version_helper; then
         tmux setenv -g "${COPYCAT_VAR_PREFIX}_${git_search}" "[0-9a-z_./~#$%&+=@-]+$"
     fi
 
+    #custom user searches
     for var in $(_get_copycat_search_vars_helper); do
         pattern="$(_get_tmux_option_global_helper "${var}")"
         tmux bind-key "${var##${COPYCAT_VAR_PREFIX}_}" run-shell \
