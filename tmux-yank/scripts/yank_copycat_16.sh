@@ -11,43 +11,23 @@ yank_put_key="$(_get_tmux_option_global_helper "${yank_put_option}" "${yank_put_
 verbose=$(_get_tmux_option_global_helper "${verbose_mode_option}" "${verbose_mode_default}")
 
 if clipboard_cmd="$(_clipboard_cmd_helper)"; then
-    tmux bind-key -n "${yank_key}" run "tmux send-keys Enter;
-        tmux save-buffer - | ${clipboard_cmd};
-        $([ "${verbose}" = "y" ] && printf "%s" "tmux display-message 'Copied tmux buffer to system clipboard';")
-        ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh;
-        tmux unbind-key -n ${yank_key};"
+    if [ "${verbose}" = "y" ]; then
+        _copycat_mode_add_helper "${yank_key}" "tmux save-buffer - | ${clipboard_cmd}" "msg:Copied tmux buffer to system clipboard"
+    else
+        _copycat_mode_add_helper "${yank_key}" "tmux save-buffer - | ${clipboard_cmd}"
+    fi
 
-    tmux bind-key -n "${put_key}" run "tmux send-keys Enter;
-        tmux paste-buffer; ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh;
-        tmux unbind-key -n ${put_key};"
+    _copycat_mode_add_helper "${put_key}"      "tmux paste-buffer"
+    _copycat_mode_add_helper "${yank_put_key}" "tmux save-buffer - | ${clipboard_cmd}; tmux paste-buffer"
 
-    tmux bind-key -n "${yank_put_key}" run "tmux send-keys Enter;
-        tmux save-buffer - | ${clipboard_cmd};
-        tmux paste-buffer; ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh;
-        tmux unbind-key -n ${yank_put_key};"
-
-    tmux bind-key -n q run "tmux unbind-key -n ${yank_key}; tmux unbind-key -n ${put_key};
-        tmux unbind-key -n ${yank_put_key}; ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh;
-        tmux send-keys q";
-
-    tmux bind-key -n C-c run "tmux unbind-key -n ${yank_key}; tmux unbind-key -n ${put_key};
-        tmux unbind-key -n ${yank_put_key}; ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh;
-        tmux send-keys C-c"
+    _copycat_mode_generate_helper #& #?
 else
     for key in "${yank_key}" "${put_key}" "${yank_put_key}"; do
-        tmux bind-key -n "${key}" run "tmux send-keys Enter;
-            tmux run \"tmux display-message 'Error! tmux-yank dependencies (xclip|xsel|pbcopy) not installed!';
-            ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh;
-            tmux unbind-key -n ${key}\""
+        _copycat_mode_add_helper "${key}" \
+            "tmux display-message 'Error! tmux-yank dependencies (xclip|xsel|pbcopy) not installed!'; ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh"
     done
 
-    tmux bind-key -n q run "tmux unbind-key -n ${yank_key}; tmux unbind-key -n ${put_key};
-        tmux unbind-key -n ${yank_put_key}; ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh;
-        tmux send-keys q";
-
-    tmux bind-key -n C-c run "tmux unbind-key -n ${yank_key}; tmux unbind-key -n ${put_key};
-        tmux unbind-key -n ${yank_put_key}; ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh;
-        tmux send-keys C-c"
+    _copycat_mode_generate_helper #& #?
 fi
 
 # vim: set ts=8 sw=4 tw=0 ft=sh :
