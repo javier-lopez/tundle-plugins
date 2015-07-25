@@ -27,11 +27,17 @@ It's based on [tmux-plugins/tmux-logging](https://github.com/tmux-plugins/tmux-l
 ### Key bindings
 
 - `prefix + P` - toggle logging mode
+
    On logging mode, everything that's typed and all output will be saved to a file. Convenient for keeping track of your work.
+   
 - `prefix + alt + p` - take text screenshot
+
    All the text visible in the current pane is saved to a file. Like a screenshot, but textual.
+   
 - `prefix + alt + P` - save the whole tmux history
+
    Everything that has been typed and all the output since the creation of the current pane can be saved to a file.
+   
 - `prefix + alt + c` - clear the tmux history
 
 For custom key bindings, add to `.tmux.conf`:
@@ -74,9 +80,7 @@ Configuration is not required, but modifies the plugin behavior.
 
 ### External ansi sanitation programs
 
-[ansifilter](http://www.andre-simon.de/doku/ansifilter/en/ansifilter.php) is a program specialized for removing (or working with) ANSI codes.
-
-If possible, it's recommended to install it, when available tmux-logging will use it, otherwise it'll try hard to remove ansi colors with sed(1).
+[ansifilter](http://www.andre-simon.de/doku/ansifilter/en/ansifilter.php) is a program specialized for removing (or working with) ANSI codes. When available tmux-logging will use it, otherwise it'll use sed(1).
 
 ## Also
 
