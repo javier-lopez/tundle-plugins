@@ -13,7 +13,7 @@ _get_digits_from_string_helper() {
 _get_tmux_option_helper() {
     [ -z "${1}" ] && return 1
 
-    if [ "${TMUX_VERSION-16}" -ge "19" ]; then
+    if [ "${TMUX_VERSION-16}" -ge "18" ]; then
         _gtohelper__value="$(tmux show-option -gqv "${1}")"
     else
         _gtohelper__value="$(tmux show-option -g|awk "/^${1}/ {gsub(/\'/,\"\");gsub(/\"/,\"\"); print \$2; exit;}")"
@@ -89,10 +89,12 @@ _pane_split_bindings() {
     if [ "${TMUX_VERSION}" -ge "19" ]; then
         tmux bind-key "|" split-window -h -c "#{pane_current_path}"
         tmux bind-key "-" split-window -v -c "#{pane_current_path}"
+    elif [ "${TMUX_VERSION}" -ge "17" ]; then
+        tmux bind-key "|" run-shell "tmux display-message -p '#{pane_current_path}' | sed 's/.*/\"&\"/' | xargs tmux split-window -h -c"
+        tmux bind-key "-" run-shell "tmux display-message -p '#{pane_current_path}' | sed 's/.*/\"&\"/' | xargs tmux split-window -v -c"
     else
         tmux bind-key "|" split-window -h
         tmux bind-key "-" split-window -v
-
         #set -g default-path "~"
         #bind % set default-path "" \; split-window -h \; set -u default-path
         #bind '"' set default-path "" \; split-window -v \; set -u default-path
@@ -102,8 +104,13 @@ _pane_split_bindings() {
 _improve_new_window_binding() {
     if [ "${TMUX_VERSION}" -ge "19" ]; then
         tmux bind-key "c" new-window -c "#{pane_current_path}"
+    elif [ "${TMUX_VERSION}" -ge "17" ]; then
+        tmux bind-key "c" run-shell "tmux display-message -p '#{pane_current_path}' | sed 's/.*/\"&\"/' | xargs tmux new-window -c"
     else
         tmux bind-key "c" new-window
+        #set -g default-path "~"
+        #bind % set default-path "" \; split-window -h \; set -u default-path
+        #bind '"' set default-path "" \; split-window -v \; set -u default-path
     fi
 }
 

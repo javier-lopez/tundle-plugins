@@ -15,7 +15,7 @@ _grouped_sessions_format() {
     "#{session_name}"
 }
 
-_pane_format_19() {
+_pane_format_18() {
     printf "%s%s%s%s%s%s%s%s%s%s%s%s" \
     "pane${d}"                        \
     "#{session_name}${d}"             \
@@ -31,7 +31,7 @@ _pane_format_19() {
     "#{history_size}"
 }
 
-_pane_format_16() {
+_pane_format_17() {
     printf "%s%s%s%s%s%s%s%s%s%s%s%s" \
     "pane${d}"                        \
     "#{session_name}${d}"             \
@@ -56,17 +56,16 @@ _window_format() {
 }
 
 _dump_panes_raw() {
-    _dump_panes_raw_error()
-    {
+    _dump_panes_raw_error() {
         _display_message_helper \
         "Your OS is not supported on tmux 1.6, please either upgrade to at least 1.9 or report a bug in tundle-plugins/tmux-resurrect"
         exit 1
     }
-    if [ "${TMUX_VERSION}" -ge "19" ]; then
-        tmux list-panes -a -F "$(_pane_format_19)"
-    else #tmux => 1.6
+    if [ "${TMUX_VERSION}" -ge "18" ]; then
+        tmux list-panes -a -F "$(_pane_format_18)"
+    else #tmux 1.7, 1.6
         #may be incorrect in some corner cases but was fine in my tests
-        tmux list-panes -a -F "$(_pane_format_16)" | while IFS="${d}" read           \
+        tmux list-panes -a -F "$(_pane_format_17)" | while IFS="${d}" read           \
         _dpraw__type _dpraw__session_name _dpraw__window_index _dpraw__window_name   \
         _dpraw__window_active _dpraw__window_flags _dpraw__pane_index                \
         _dpraw__pane_active _dpraw__pane_pid _dpraw__history_size; do
@@ -80,7 +79,6 @@ _dump_panes_raw() {
                 _dpraw__pane_current_cmd="${_dpraw__pane_current_cmd#-}"; }
 
                 [ -z "${_dpraw__pane_current_path}" ] && [ -z "${_dpraw__pane_current_cmd}" ] && _dump_panes_raw_error
-
                 #freebsd
                 #fstat -p $process | awk '/?/'
                 ;;
@@ -117,7 +115,7 @@ _save_command_strategy_file() {
     _scsfile__strategy="$(_get_tmux_option_global_helper "${save_command_strategy_option}" "${default_save_command_strategy}")"
     _scsfile__strategy_definition="${CURRENT_DIR}/../save_command_strategies/${_scsfile__strategy}.sh"
     _scsfile__default_strategy_definition="${CURRENT_DIR}/../save_command_strategies/${default_save_command_strategy}.sh"
-    if [ -e "${_scsfile__strategy_definition}" ]; then # strategy file exists?
+    if [ -e "${_scsfile__strategy_definition}" ]; then #strategy file exists?
         printf "%s\\n" "${_scsfile__strategy_definition}"
     else
         printf "%s\\n" "${_scsfile__default_strategy_definition}"
@@ -142,15 +140,15 @@ _capture_pane_contents() {
 }
 
 _save_shell_history() {
-    # $1 => pane_id
-    # $2 => pane_command
-    # $3 => full_command
+    #$1 => pane_id
+    #$2 => pane_command
+    #$3 => full_command
     if [ "${2}" = "bash" ] && [ "${3}" = ":" ]; then
-        # leading space prevents the command from being saved to history
-        # (assuming default HISTCONTROL settings)
+        #leading space prevents the command from being saved to history
+        #(assuming default HISTCONTROL settings)
         _sshistory__write_command=" history -w '$(_resurrect_history_file_helper "${1}")'"
-        # C-e C-u is a Bash shortcut sequence to clear whole line. It is necessary to
-        # delete any pending input so it does not interfere with our history command.
+        #C-e C-u is a Bash shortcut sequence to clear whole line. It is necessary to
+        #delete any pending input so it does not interfere with our history command.
         tmux send-keys -t "${1}" C-e C-u "${_sshistory__write_command}" C-m
     fi
 }
@@ -170,11 +168,11 @@ _dump_grouped_sessions() {
     grep "^1" | cut -c 3- | sort | \
     while IFS="${d}" read _dgsessions__group _dgsessions__id _dgsessions__name; do
         if [ "${_dgsessions__group}" != "${_dgsessions__current_group}" ]; then
-            # this session is the original/first session in the group
+            #this session is the original/first session in the group
             _dgsessions__original="${_dgsessions__name}"
             _dgsessions__current_group="${_dgsessions__group}"
         else
-            # this session "points" to the original session
+            #this session "points" to the original session
             _dgsessions__active_window_index="$(_get_active_window_index "${_dgsessions__name}")"
             _dgsessions__alternate_window_index="$(_get_alternate_window_index "${_dgsessions__name}")"
             printf "%s%s%s%s%s\\n"                        \
@@ -193,13 +191,13 @@ _fetch_and_dump_grouped_sessions(){
     [ -n "${_fadgsessions__sessions}" ] && printf "%s\\n" "${_fadgsessions__sessions}"
 }
 
-# translates pane pid to process command running inside a pane
+#translates pane pid to process command running inside a pane
 _dump_panes() {
     _dump_panes_raw | while IFS="${d}" read _dpanes__type _dpanes__session_name \
     _dpanes__window_number _dpanes__window_name _dpanes__window_active        \
     _dpanes__window_flags _dpanes__pane_index _dpanes__dir _dpanes__active    \
     _dpanes__command _dpanes__id _dpanes__history_size; do
-        # not saving panes from grouped sessions
+        #not saving panes from grouped sessions
         if _is_session_grouped_helper "${_dpanes__session_name}"; then
             continue
         fi
@@ -224,18 +222,18 @@ _dump_windows() {
     _dump_windows_raw | while IFS="$d" read _dwindows__type _dwindows__session_name \
     _dwindows__window_index  _dwindows__window_active _dwindows__window_flags       \
     _dwindows__window_layout; do
-        # not saving windows from grouped sessions
+        #not saving windows from grouped sessions
         if _is_session_grouped_helper "${_dwindows__session_name}"; then
             continue
         fi
-        # window_layout is not correct for zoomed windows
+        #window_layout is not correct for zoomed windows
         case "${_dwindows__window_flags}" in
-            *Z*) # unmaximize the window
+            *Z*) #unmaximize the window
                 _toggle_window_zoom "${_dwindows__session_name}:${_dwindows__window_index}"
-                # get correct window layout
-                # TODO 26-06-2015 12:19 >> tmux 1.6 doesn't have -F in display-message
+                #get correct window layout
+                #TODO 26-06-2015 12:16 >> tmux 1.6 doesn't have -F in display-message
                 _dwindows__window_layout="$(tmux display-message -p -t "${_dwindows__session_name}:${_dwindows__window_index}" -F "#{window_layout}")"
-                # maximize window again
+                #maximize window again
                 _toggle_window_zoom "${_dwindows__session_name}:${_dwindows__window_index}"
             ;;
         esac
@@ -281,7 +279,7 @@ _dump_bash_history() {
 }
 
 if _supported_tmux_version_helper; then
-    # if "quiet" script produces no output
+    #if "quiet" script produces no output
     if [ "${1}" != "quiet" ]; then
         _start_spinner_helper "Saving..." "Tmux environment saved!"
     fi

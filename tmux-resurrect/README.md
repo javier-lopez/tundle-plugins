@@ -107,8 +107,8 @@ To enable saving and restoring tmux pane contents add this line to `.tmux.conf`:
 
 ## Known bugs
 
-* On tmux 1.6 tmux-resurrect only recover a single session due to switch-client limitated scope
-* Saving on tmux 1.9 and recovering on tmux 1.6 could break "advanced" layout themes
+* On tmux 1.6 - 1.8 tmux-resurrect only recover a single session due to switch-client limitated scope
+* Saving on tmux 1.8 or superior and recovering on tmux 1.7 or inferior could break "advanced" layout themes
 
 Bugfixes welcome =)
 

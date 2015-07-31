@@ -19,14 +19,12 @@ if clipboard_cmd="$(_clipboard_cmd_helper)"; then
 
     _copycat_mode_add_helper "${put_key}"      "tmux paste-buffer"
     _copycat_mode_add_helper "${yank_put_key}" "tmux save-buffer - | ${clipboard_cmd}; tmux paste-buffer"
-
     _copycat_mode_generate_helper #& #?
 else
     for key in "${yank_key}" "${put_key}" "${yank_put_key}"; do
         _copycat_mode_add_helper "${key}" \
             "tmux display-message 'Error! tmux-yank dependencies (xclip|xsel|pbcopy) not installed!'; ${tmux_copycat_dir}/scripts/copycat_mode_quit.sh"
     done
-
     _copycat_mode_generate_helper #& #?
 fi
 

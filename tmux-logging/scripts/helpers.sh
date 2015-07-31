@@ -7,7 +7,7 @@ _get_digits_from_string_helper() {
 _get_tmux_option_helper() {
     [ -z "${1}" ] && return 1
 
-    if [ "${TMUX_VERSION-16}" -ge "19" ]; then
+    if [ "${TMUX_VERSION-16}" -ge "18" ]; then
         _gtohelper__value="$(tmux show-option -gqv "${1}")"
     else #tmux => 1.6 altough could work on even lower tmux versions
         _gtohelper__value="$(tmux show-option -g|awk "/^${1}/ {gsub(/\'/,\"\");gsub(/\"/,\"\"); print \$2; exit;}")"
@@ -85,7 +85,7 @@ _get_fname_helper() {
 }
 
 _pane_unique_id_helper() {
-    if [ "${TMUX_VERSION-16}" -ge "19" ]; then
+    if [ "${TMUX_VERSION-16}" -ge "18" ]; then
         #sed removes `$` sign because `session_id` contains it
         tmux display-message -p "#{session_id}-#{window_index}-#{pane_index}" | sed 's/\$//'
     else
