@@ -1,4 +1,4 @@
-SUPPORTED_VERSION="1.6"
+SUPPORTED_TMUX_VERSION="1.6"
 
 #these tmux options contain paths to tmux resurrect save and restore scripts
 resurrect_save_path_option="@resurrect-save-script-path"
