@@ -18,9 +18,9 @@ It's based on [tmux-plugins/tmux-sessionist](https://github.com/tmux-plugins/tmu
 
 2. Install it:
 
-   Hit `prefix + I` (or run `here tmux free installation script` for CLI lovers)
+   Hit `prefix + I` inside tmux (or run `~/.tmux/plugins/tundle/scripts/install_plugins.sh` for CLI lovers)
 
-3. Enjoy
+3. Enjoy ☺!
 
 ## Usage
 

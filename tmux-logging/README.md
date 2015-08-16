@@ -18,9 +18,9 @@ It's based on [tmux-plugins/tmux-logging](https://github.com/tmux-plugins/tmux-l
 
 2. Install it:
 
-   Hit `prefix + I` (or run `here tmux free installation script` for CLI lovers)
+   Hit `prefix + I` inside tmux (or run `~/.tmux/plugins/tundle/scripts/install_plugins.sh` for CLI lovers)
 
-3. Enjoy
+3. Enjoy ☺!
 
 ## Usage
 
@@ -29,15 +29,15 @@ It's based on [tmux-plugins/tmux-logging](https://github.com/tmux-plugins/tmux-l
 - `prefix + P` - toggle logging mode
 
    On logging mode, everything that's typed and all output will be saved to a file. Convenient for keeping track of your work.
-   
+
 - `prefix + alt + p` - take text screenshot
 
    All the text visible in the current pane is saved to a file. Like a screenshot, but textual.
-   
+
 - `prefix + alt + P` - save the whole tmux history
 
    Everything that has been typed and all the output since the creation of the current pane can be saved to a file.
-   
+
 - `prefix + alt + c` - clear the tmux history
 
 For custom key bindings, add to `.tmux.conf`:
