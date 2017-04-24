@@ -126,6 +126,22 @@ _set_tmux_sensible_settings() {
     # enable utf8 in tmux status-left and status-right
     tmux set-option -g status-utf8 on
 
+    # start windows and panes at 1, not 0, to match with vim, bspwm and i3
+    if _option_value_not_changed "base-index" "0"; then
+        tmux set-option -g base-index      1
+    fi
+
+    if _option_value_not_changed "pane-base-index" "1"; then
+        tmux set-option -g pane-base-index 1
+    fi
+
+    if [ "$(tmux -V | tr -dC '0123456789')" -ge "17" ]; then
+        #renumber when window is closed
+        if _option_value_not_changed "renumber-windows" "off"; then
+            tmux set-option -g renumber-windows on
+        fi
+    fi
+
     # address vim mode switching delay (http://superuser.com/a/252717/65504)
     if _server_option_value_not_changed "escape-time" "500"; then
         tmux set-option -s escape-time 0
@@ -215,11 +231,13 @@ _set_tmux_sensible_settings() {
     fi
 
     # source `.tmux.conf` file - as suggested in `man tmux`
-    if _key_binding_not_set "R"; then
-        tmux bind-key R run-shell '
-            tmux source-file ~/.tmux.conf > /dev/null;
-            tmux display-message "Sourced .tmux.conf!"'
-    fi
+    for key in r R; do
+        if _key_binding_not_set "${key}"; then
+            tmux bind-key       "${key}"  run-shell '
+                tmux source-file ~/.tmux.conf > /dev/null;
+                tmux display-message "Sourced .tmux.conf!"'
+        fi
+    done; unset key
 
     # vi like experience for vi-copy mode
     if _key_binding_not_set "Escape"; then
