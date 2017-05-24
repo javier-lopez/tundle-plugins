@@ -1,6 +1,6 @@
 ## About
 
-[Tmux-logging](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-logging) is a plugin for [Tundle](https://github.com/chilicuil/tundle) who enables logging and text screenshots on tmux.
+[Tmux-logging](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-logging) is a plugin for [Tundle](https://github.com/javier-lopez/tundle) who enables logging and text screenshots on tmux.
 
 <p align="center">
 <img src="./img/tmux-logging.gif" alt="tmux-logging"/>
@@ -10,10 +10,10 @@ It's based on [tmux-plugins/tmux-logging](https://github.com/tmux-plugins/tmux-l
 
 ## Quick start
 
-1. Add [tmux-logging](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-logging) to your tmux  configuration (~/.tmux.conf):
+1. Add [tmux-logging](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-logging) to your tmux  configuration (~/.tmux.conf):
 
    ```sh
-   setenv -g @bundle "chilicuil/tundle-plugins/tmux-logging"
+   setenv -g @bundle "javier-lopez/tundle-plugins/tmux-logging"
    ```
 
 2. Install it:

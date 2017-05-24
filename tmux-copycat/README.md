@@ -1,6 +1,6 @@
 ## About
 
-[tmux-copycat](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-copycat) is a plugin for [Tundle](https://github.com/chilicuil/tundle) that enhances tmux search.
+[tmux-copycat](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-copycat) is a plugin for [Tundle](https://github.com/javier-lopez/tundle) that enhances tmux search.
 
 <p align="center">
 <a href="https://vimeo.com/101867689" target="_blank"><img src="./img/screencast_img.png" alt="tmux-copycat video"/></a>
@@ -10,10 +10,10 @@ It's based on [tmux-plugins/tmux-copycat](https://github.com/tmux-plugins/tmux-c
 
 ## Quick start
 
-1. Add [tmux-copycat](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-copycat) to your tmux configuration (~/.tmux.conf):
+1. Add [tmux-copycat](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-copycat) to your tmux configuration (~/.tmux.conf):
 
    ```sh
-   setenv -g @bundle "chilicuil/tundle-plugins/tmux-copycat"
+   setenv -g @bundle "javier-lopez/tundle-plugins/tmux-copycat"
    ```
 
 2. Install it:
@@ -66,7 +66,7 @@ Copying a highlighted match will take you "out" of copycat mode. Paste with
 
 Copying highlighted matches can be enhanced with
 
-* [tundle/tmux yank](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-yank).
+* [tundle/tmux yank](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-yank).
 
 ### Configuration
 

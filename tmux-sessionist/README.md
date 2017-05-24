@@ -1,6 +1,6 @@
 ## About
 
-[Tmux-sessionist](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-sessionist) is a plugin for [Tundle](https://github.com/chilicuil/tundle) who helps to manage tmux sessions.
+[Tmux-sessionist](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-sessionist) is a plugin for [Tundle](https://github.com/javier-lopez/tundle) who helps to manage tmux sessions.
 
 <p align="center">
 <img src="http://javier.io/assets/img/tmux-sessionist.gif" alt="tmux-sessionist gif"/>
@@ -10,10 +10,10 @@ It's based on [tmux-plugins/tmux-sessionist](https://github.com/tmux-plugins/tmu
 
 ## Quick start
 
-1. Add [tmux-sessionist](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-sessionist) to your tmux  configuration (~/.tmux.conf):
+1. Add [tmux-sessionist](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-sessionist) to your tmux  configuration (~/.tmux.conf):
 
    ```sh
-   setenv -g @bundle "chilicuil/tundle-plugins/tmux-sessionist"
+   setenv -g @bundle "javier-lopez/tundle-plugins/tmux-sessionist"
    ```
 
 2. Install it:

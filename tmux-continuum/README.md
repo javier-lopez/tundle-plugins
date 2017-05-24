@@ -1,6 +1,6 @@
 ## About
 
-[Tmux-continuum](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-continuum) is a plugin for [Tundle](https://github.com/chilicuil/tundle) for continuous tmux usage.
+[Tmux-continuum](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-continuum) is a plugin for [Tundle](https://github.com/javier-lopez/tundle) for continuous tmux usage.
 
 <p align="center">
 <img src="./img/tmux-continuum.gif" alt="tmux-continuum gif"/></a>
@@ -10,10 +10,10 @@ It's based on [tmux-plugins/tmux-continuum](https://github.com/tmux-plugins/tmux
 
 ## Quick start
 
-1. Add [tmux-continuum](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-continuum) to your tmux configuration (~/.tmux.conf):
+1. Add [tmux-continuum](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-continuum) to your tmux configuration (~/.tmux.conf):
 
    ```sh
-   setenv -g @bundle "chilicuil/tundle-plugins/tmux-continuum"
+   setenv -g @bundle "javier-lopez/tundle-plugins/tmux-continuum"
    ```
 
 2. Install it:
@@ -99,6 +99,6 @@ Remove `setenv -g @continuum-restore 'on'` from `tmux.conf`.
 ## Also
 
 * tmux-continuum was developed against tmux 1.6 and dash 0.5 on Linux
-* tmux-continuum depends in the [tmux-resurrect](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-resurrect) plugin
+* tmux-continuum depends in the [tmux-resurrect](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-resurrect) plugin
 * tmux-continuum will try to run in as many platforms & shells as possible
 * tmux-continuum tries to be as [KISS](http://en.wikipedia.org/wiki/KISS_principle) as possible

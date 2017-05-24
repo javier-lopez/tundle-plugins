@@ -1,6 +1,6 @@
 ## About
 
-[Tmux-yank](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-yank) is a plugin for [Tundle](https://github.com/chilicuil/tundle) who enables copying to the system clipboard under Linux and OS X in tmux.
+[Tmux-yank](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-yank) is a plugin for [Tundle](https://github.com/javier-lopez/tundle) who enables copying to the system clipboard under Linux and OS X in tmux.
 
 <p align="center">
 <a href="https://vimeo.com/102039099" target="_blank"><img src="./img/screencast_img.png" alt="tmux-yank video"/></a>
@@ -10,10 +10,10 @@ It's based on [tmux-plugins/tmux-yank](https://github.com/tmux-plugins/tmux-yank
 
 ## Quick start
 
-1. Add [tmux-yank](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-yank) to your tmux  configuration (~/.tmux.conf):
+1. Add [tmux-yank](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-yank) to your tmux  configuration (~/.tmux.conf):
 
    ```sh
-   setenv -g @bundle "chilicuil/tundle-plugins/tmux-yank"
+   setenv -g @bundle "javier-lopez/tundle-plugins/tmux-yank"
    ```
 
 2. Install it:

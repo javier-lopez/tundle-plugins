@@ -1,15 +1,15 @@
 ## About
 
-[Tmux-sensible](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-sensible) is a plugin for [Tundle](https://github.com/chilicuil/tundle) providing basic tmux settings.
+[Tmux-sensible](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-sensible) is a plugin for [Tundle](https://github.com/javier-lopez/tundle) providing basic tmux settings.
 
 It's based on [tmux-plugins/tmux-sensible](https://github.com/tmux-plugins/tmux-sensible) with personal sauce and relaxed dependency requirements.
 
 ## Quick start
 
-1. Add [tmux-sensible](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-sensible) to your tmux  configuration (~/.tmux.conf):
+1. Add [tmux-sensible](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-sensible) to your tmux  configuration (~/.tmux.conf):
 
    ```sh
-   setenv -g @bundle "chilicuil/tundle-plugins/tmux-sensible"
+   setenv -g @bundle "javier-lopez/tundle-plugins/tmux-sensible"
    ```
 
 2. Install it:
@@ -20,7 +20,7 @@ It's based on [tmux-plugins/tmux-sensible](https://github.com/tmux-plugins/tmux-
 
 ## Usage
 
-Upon installation no further steps are required, tmux-sensible is just about common tmux options, some of them are (full details in [sensible.tmux](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-sensible)):
+Upon installation no further steps are required, tmux-sensible is just about common tmux options, some of them are (full details in [sensible.tmux](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-sensible)):
 
 ### Options
 

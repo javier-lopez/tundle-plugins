@@ -1,6 +1,6 @@
 ## About
 
-[Tmux-open](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-open) is a plugin for [Tundle](https://github.com/chilicuil/tundle) to open eficientily files in tmux copy-mode works under Linux and OS X.
+[Tmux-open](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-open) is a plugin for [Tundle](https://github.com/javier-lopez/tundle) to open eficientily files in tmux copy-mode works under Linux and OS X.
 
 <p align="center">
 <a href="http://vimeo.com/102455265" target="_blank"><img src="./img/screencast_img.png" alt="tmux-open video"/></a>
@@ -10,10 +10,10 @@ It's based on [tmux-plugins/tmux-open](https://github.com/tmux-plugins/tmux-open
 
 ## Quick start
 
-1. Add [tmux-open](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-open) to your tmux configuration (~/.tmux.conf):
+1. Add [tmux-open](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-open) to your tmux configuration (~/.tmux.conf):
 
    ```sh
-   setenv -g @bundle "chilicuil/tundle-plugins/tmux-open"
+   setenv -g @bundle "javier-lopez/tundle-plugins/tmux-open"
    ```
 
 2. Install it:

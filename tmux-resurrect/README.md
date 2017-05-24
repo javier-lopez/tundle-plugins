@@ -1,6 +1,6 @@
 ## About
 
-[Tmux-resurrect](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-resurrect) is a plugin for [Tundle](https://github.com/chilicuil/tundle) who allows to save/recover tmux sessions.
+[Tmux-resurrect](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-resurrect) is a plugin for [Tundle](https://github.com/javier-lopez/tundle) who allows to save/recover tmux sessions.
 
 <p align="center">
 <a href="https://vimeo.com/104763018" target="_blank"><img src="./img/screencast_img.png" alt="tmux-resurrect video"/></a>
@@ -10,10 +10,10 @@ It's based on [tmux-plugins/tmux-resurrect](https://github.com/tmux-plugins/tmux
 
 ## Quick start
 
-1. Add [tmux-resurrect](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-resurrect) to your tmux  configuration (~/.tmux.conf):
+1. Add [tmux-resurrect](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-resurrect) to your tmux  configuration (~/.tmux.conf):
 
    ```sh
-   setenv -g @bundle "chilicuil/tundle-plugins/tmux-resurrect"
+   setenv -g @bundle "javier-lopez/tundle-plugins/tmux-resurrect"
    ```
 
 2. Install it:

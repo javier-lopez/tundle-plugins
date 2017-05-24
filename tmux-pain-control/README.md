@@ -1,6 +1,6 @@
 ## About
 
-[Tmux-pain-control](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-pain-control) is a plugin for [Tundle](https://github.com/chilicuil/tundle) providing affordable tmux window management.
+[Tmux-pain-control](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-pain-control) is a plugin for [Tundle](https://github.com/javier-lopez/tundle) providing affordable tmux window management.
 
 <p align="center">
 <img src="./screenshots/pane_splitting.gif" alt="pane splitting"/>
@@ -10,10 +10,10 @@ It's based on [tmux-plugins/tmux-pain-control](https://github.com/tmux-plugins/t
 
 ## Quick start
 
-1. Add [tmux-pain-control](https://github.com/chilicuil/tundle-plugins/tree/master/tmux-pain-control) to your tmux  configuration (~/.tmux.conf):
+1. Add [tmux-pain-control](https://github.com/javier-lopez/tundle-plugins/tree/master/tmux-pain-control) to your tmux  configuration (~/.tmux.conf):
 
    ```sh
-   setenv -g @bundle "chilicuil/tundle-plugins/tmux-pain-control"
+   setenv -g @bundle "javier-lopez/tundle-plugins/tmux-pain-control"
    ```
 
 2. Install it:
@@ -39,7 +39,7 @@ Notice most of the bindings emulate vim cursor movements.
 - `prefix + l` and `prefix + C-l`<br/>
   select pane on the right
 
-**Note**: This overrides tmux's default binding for toggling between last active windows, `prefix + l`.  [tmux-pain-control](https://github.com/chilicuil/tundle-plugins/tmux-pain-control) gives you a better binding for that, `prefix + a` (if your prefix is `C-a`).
+**Note**: This overrides tmux's default binding for toggling between last active windows, `prefix + l`.  [tmux-pain-control](https://github.com/javier-lopez/tundle-plugins/tmux-pain-control) gives you a better binding for that, `prefix + a` (if your prefix is `C-a`).
 
 ### Resizing panes
 
