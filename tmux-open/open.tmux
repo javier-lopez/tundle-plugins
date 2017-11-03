@@ -123,7 +123,7 @@ if _supported_tmux_version_helper; then
 else
     #should errors will be displayed per plugin?
     #_display_message_helper "$(printf "%s\\n" \
-        #"Error, Tmux version unsupported! Please install Tmux version ${SUPPORTED_TMUX_VERSION} or greater!")"
+    #"Error, tmux version ${TMUX_VERSION} unsupported! Please install tmux version >= ${SUPPORTED_TMUX_VERSION}!")"
     exit 1
 fi
 
