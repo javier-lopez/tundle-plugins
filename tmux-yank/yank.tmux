@@ -20,11 +20,26 @@ if _supported_tmux_version_helper; then
     if clipboard_cmd="$(_clipboard_cmd_helper)"; then
         clipboard_wo_newline_cmd="tr -d '\n' | ${clipboard_cmd}"
 
-        if [ "${TMUX_VERSION}" -ge "18" ]; then #copy-pipe appeared in tmux 1.8
+        #https://github.com/tmux/tmux/commit/76d6d3641f271be1756e41494960d96714e7ee58
+        if [ "${TMUX_VERSION}" -ge "24" ]; then #shitty tmux development model
+            for mode in copy-mode-vi copy-mode; do
+                if [ "${verbose}" = "y" ]; then
+                    tmux bind-key -T "${mode}" "${yank_key}" send-keys -X copy-pipe-and-cancel \
+                        "${clipboard_cmd}; tmux display-message 'Copied tmux buffer to system clipboard'"
+                else
+                    tmux bind-key -T "${mode}" "${yank_key}" send-keys -X copy-pipe-and-cancel "${clipboard_cmd}"
+                fi
+                tmux bind-key -T "${mode}" "${put_key}"      send-keys -X copy-pipe-and-cancel "tmux paste-buffer"
+                tmux bind-key -T "${mode}" "${yank_put_key}" send-keys -X copy-pipe-and-cancel "${clipboard_cmd}; tmux paste-buffer"
+
+                #this binding isn't intended to be used by the user. It is a helper for the `yank_line.sh` command
+                tmux bind-key -T "${mode}" "${yank_wo_newline_key}" send-keys -X copy-pipe-and-cancel "${clipboard_wo_newline_cmd}"
+            done
+        elif [ "${TMUX_VERSION}" -ge "18" ]; then #copy-pipe appeared in tmux 1.8
             for mode in vi-copy emacs-copy; do
                 if [ "${verbose}" = "y" ]; then
-                    tmux bind-key -t "${mode}" "${yank_key}" \
-                        copy-pipe "${clipboard_cmd}; tmux display-message 'Copied tmux buffer to system clipboard'"
+                    tmux bind-key -t "${mode}" "${yank_key}" copy-pipe \
+                        "${clipboard_cmd}; tmux display-message 'Copied tmux buffer to system clipboard'"
                 else
                     tmux bind-key -t "${mode}" "${yank_key}" copy-pipe "${clipboard_cmd}"
                 fi
@@ -59,7 +74,14 @@ if _supported_tmux_version_helper; then
         fi
         tmux bind-key "${yank_line_key}" run-shell "${CURRENT_DIR}/scripts/yank_line.sh"
     else
-        if [ "${TMUX_VERSION}" -ge "18" ]; then
+        #https://github.com/tmux/tmux/commit/76d6d3641f271be1756e41494960d96714e7ee58
+        if [ "${TMUX_VERSION}" -ge "24" ]; then #shitty tmux development model
+            for mode in copy-mode-vi copy-mode; do
+                for key in "${yank_key}" "${put_key}" "${yank_put_key}"; do
+                    tmux bind-key -T "${mode}" "${key}" send-keys -X run-shell "$(_display_deps_error)"
+                done
+            done
+        elif [ "${TMUX_VERSION}" -ge "18" ]; then
             for mode in vi-copy emacs-copy; do
                 for key in "${yank_key}" "${put_key}" "${yank_put_key}"; do
                     tmux bind-key -t "${mode}" "${key}" run-shell "$(_display_deps_error)"

@@ -17,7 +17,27 @@ if _supported_tmux_version_helper; then
     verbose=$(_get_tmux_option_global_helper "${verbose_mode_option}" "${verbose_mode_default}")
 
     if [ "${open_cmd}" ]; then
-        if [ "${TMUX_VERSION}" -ge "18" ]; then #copy-pipe appeared in tmux 1.8
+        #https://github.com/tmux/tmux/commit/76d6d3641f271be1756e41494960d96714e7ee58
+        if [ "${TMUX_VERSION}" -ge "24" ]; then #shitty tmux development model
+            for mode in copy-mode-vi copy-mode; do
+                tmux bind-key -T "${mode}" "${open_key}" send-keys -X copy-pipe-and-cancel \
+                    "$([ "${verbose}" = "y" ] && printf "tmux display-message 'Opening selection ...';")
+                    xargs -I {} tmux run-shell 'cd #{pane_current_path}; ${open_cmd} \"{}\" > /dev/null' "
+            done
+
+            #custom user internet searches, eg: @open-g 'https://www.google.com/search?q='
+            for engine_binding in $(_get_user_defined_search_engines_bindings); do
+                url="$(_get_tmux_option_global_helper "${engine_binding}")"
+                #remove prefix, which could be either @open_ or @open-
+                binding="${engine_binding##@open}"; binding=${binding#?}
+
+                for mode in copy-mode-vi copy-mode; do
+                    tmux bind-key -T "${mode}" "${binding}" send-keys -X copy-pipe-and-cancel \
+                        "$([ "${verbose}" = "y" ] && printf "tmux display-message 'Searching selection on $(dirname "${url}") ...';")
+                        xargs -I {} tmux run-shell 'cd #{pane_current_path}; ${open_cmd} ${url}\"{}\" > /dev/null'"
+                done
+            done
+        elif [ "${TMUX_VERSION}" -ge "18" ]; then #copy-pipe appeared in tmux 1.8
             for mode in vi-copy emacs-copy; do
                 tmux bind-key -t "${mode}" "${open_key}" copy-pipe \
                     "$([ "${verbose}" = "y" ] && printf "tmux display-message 'Opening selection ...';")
@@ -68,7 +88,22 @@ if _supported_tmux_version_helper; then
             done
         fi
     else
-        if [ "${TMUX_VERSION}" -ge "18" ]; then
+        #https://github.com/tmux/tmux/commit/76d6d3641f271be1756e41494960d96714e7ee58
+        if [ "${TMUX_VERSION}" -ge "24" ]; then #shitty tmux development model
+            for mode in copy-mode-vi copy-mode; do
+                tmux bind-key -T "${mode}" "${open_key}" send-keys -X run-shell "$(_display_deps_error_helper)"
+            done
+
+            #custom user internet searches, eg: @open-g 'https://www.google.com/search?q='
+            for engine_binding in $(_get_user_defined_search_engines_bindings); do
+                #remove prefix, which could be either @open_ or @open-
+                binding="${engine_binding##@open}"; binding=${binding#?}
+
+                for mode in copy-mode-vi copy-mode; do
+                    tmux bind-key -T "${mode}" "${binding}" send-keys -X run-shell "$(_display_deps_error_helper)"
+                done
+            done
+        elif [ "${TMUX_VERSION}" -ge "18" ]; then
             for mode in vi-copy emacs-copy; do
                 tmux bind-key -t "${mode}" "${open_key}" run-shell "$(_display_deps_error_helper)"
             done
@@ -98,7 +133,15 @@ if _supported_tmux_version_helper; then
     fi
 
     if [ "${editor_cmd}" ]; then
-        if [ "${TMUX_VERSION}" -ge "18" ]; then #copy-pipe appeared in tmux 1.8
+        #https://github.com/tmux/tmux/commit/76d6d3641f271be1756e41494960d96714e7ee58
+        if [ "${TMUX_VERSION}" -ge "24" ]; then #shitty tmux development model
+            for mode in copy-mode-vi copy-mode; do
+                #vim freezes terminal unless there's the '--' argument. Other editors seem
+                #to be fine with it (textmate [mate], light table [table]).
+                tmux bind-key -T "${mode}" "${editor_key}" send-keys -X copy-pipe-and-cancel \
+                    "xargs -I {} tmux send-keys '${editor_cmd} -- \"{}\"'; tmux send-keys 'C-m'"
+            done
+        elif [ "${TMUX_VERSION}" -ge "18" ]; then #copy-pipe appeared in tmux 1.8
             for mode in vi-copy emacs-copy; do
                 #vim freezes terminal unless there's the '--' argument. Other editors seem
                 #to be fine with it (textmate [mate], light table [table]).
@@ -114,7 +157,12 @@ if _supported_tmux_version_helper; then
             done
         fi
     else
-        if [ "${TMUX_VERSION}" -ge "18" ]; then
+        #https://github.com/tmux/tmux/commit/76d6d3641f271be1756e41494960d96714e7ee58
+        if [ "${TMUX_VERSION}" -ge "24" ]; then #shitty tmux development model
+            for mode in copy-mode-vi copy-mode; do
+                tmux bind-key -T "${mode}" "${editor_key}" send-keys -X run-shell "$(_display_deps_error_helper)"
+            done
+        elif [ "${TMUX_VERSION}" -ge "18" ]; then
             for mode in vi-copy emacs-copy; do
                 tmux bind-key -t "${mode}" "${editor_key}" run-shell "$(_display_deps_error_helper)"
             done
