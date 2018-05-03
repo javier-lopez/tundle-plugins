@@ -83,12 +83,12 @@ KEY_BINDING_REGEX_KEY_TABLE="bind-key[[:space:]]\+-t[[:space:]]\+\(vi\|emacs\)-c
 sensible_mouse_default="y"
 sensible_mouse_option="@sensible_mouse"
 
-# returns prefix key, e.g. 'C-a'
+#returns prefix key, e.g. 'C-a'
 _prefix() {
     _get_tmux_option_helper "prefix"
 }
 
-# if prefix is 'C-a', this function returns 'a'
+#if prefix is 'C-a', this function returns 'a'
 _prefix_without_ctrl() {
     _prefix | cut -d '-' -f2
 }
@@ -120,13 +120,13 @@ _key_binding_not_changed() {
 }
 
 _set_tmux_sensible_settings() {
-    # enable utf8
+    #enable utf8
     tmux set-option -g utf8 on
 
-    # enable utf8 in tmux status-left and status-right
+    #enable utf8 in tmux status-left and status-right
     tmux set-option -g status-utf8 on
 
-    # start windows and panes at 1, not 0, to match with vim, bspwm and i3
+    #start windows and panes at 1, not 0, to match with vim, bspwm and i3
     if _option_value_not_changed "base-index" "0"; then
         tmux set-option -g base-index      1
     fi
@@ -142,87 +142,86 @@ _set_tmux_sensible_settings() {
         fi
     fi
 
-    # address vim mode switching delay (http://superuser.com/a/252717/65504)
+    #address vim mode switching delay (http://superuser.com/a/252717/65504)
     if _server_option_value_not_changed "escape-time" "500"; then
         tmux set-option -s escape-time 0
     fi
 
-    # increase scrollback buffer size
+    #increase scrollback buffer size
     if _option_value_not_changed "history-limit" "2000"; then
         tmux set-option -g history-limit 50000
     fi
 
-    # tmux messages are displayed for 4 seconds
+    #tmux messages are displayed for 4 seconds
     if _option_value_not_changed "display-time" "750"; then
         tmux set-option -g display-time 4000
     fi
 
-    # refresh 'status-left' and 'status-right' more often
+    #refresh 'status-left' and 'status-right' more often
     if _option_value_not_changed "status-interval" "15"; then
         tmux set-option -g status-interval 5
     fi
 
-    # required (only) on OS X
+    #required (only) on OS X
     if [ "$(uname)" = "Darwin" ] && command -v "reattach-to-user-namespace" >/dev/null 2>&1 && \
         _option_value_not_changed "default-command" ""; then
         tmux set-option -g default-command "reattach-to-user-namespace -l $SHELL"
     fi
 
-    # upgrade $TERM
+    #upgrade $TERM
     if _option_value_not_changed "default-terminal" "screen"; then
         tmux set-option -g default-terminal "screen-256color"
     fi
 
-    # emacs key bindings in tmux command prompt (prefix + :) are better than
-    # vi keys, even for vim users
+    #emacs key bindings in tmux command prompt (prefix + :) are better than
+    #vi keys, even for vim users
     tmux set-option -g status-keys emacs
 
-    # focus events enabled for terminals that support them
+    #focus events enabled for terminals that support them
     tmux set-option -g focus-events on
 
-    # super useful when using "grouped sessions" and multi-monitor setup
+    #super useful when using "grouped sessions" and multi-monitor setup
     tmux set-window-option -g aggressive-resize on
 
-    # C-a should be the Tmux default prefix, really
+    #C-a should be the Tmux default prefix, really
     if _option_value_not_changed "prefix" "C-b"; then
         tmux set-option -g prefix C-a
     fi
 
-    # default to vi-copy mode
+    #default to vi-copy mode
     tmux set-option -g mode-keys vi
 
-    # enable mouse features for terminals that support it
+    #enable mouse features for terminals that support it
     if [ "$(_get_tmux_option_global_helper "${sensible_mouse_option}" "${sensible_mouse_default}")" = "y" ]; then
         tmux set-option -g mouse-resize-pane on
         tmux set-option -g mouse-select-pane on
         tmux set-option -g mouse-select-window on
     fi
 
-    # DEFAULT KEY BINDINGS
-
+    #DEFAULT KEY BINDINGS
     _stssettings__prefix="$(_prefix)"
     _stssettings__prefix_without_ctrl="$(_prefix_without_ctrl)"
 
-    # if C-b is not prefix
+    #if C-b is not prefix
     if [ "${_stssettings__prefix}" != "C-b" ]; then
-        # unbind obsolte default binding
+        #unbind obsolte default binding
         if _key_binding_not_changed "C-b" "send-prefix"; then
             tmux unbind-key C-b
         fi
 
-        # pressing `prefix + prefix` sends <prefix> to the shell
+        #pressing `prefix + prefix` sends <prefix> to the shell
         if _key_binding_not_set "${_stssettings__prefix}"; then
             tmux bind-key "${_stssettings__prefix}" send-prefix
         fi
     fi
 
-    # If Ctrl-a is prefix then `Ctrl-a + a` switches between alternate windows.
-    # Works for any prefix character.
+    #if Ctrl-a is prefix then `Ctrl-a + a` switches between alternate windows.
+    #works for any prefix character.
     if _key_binding_not_set "${_stssettings__prefix_without_ctrl}"; then
         tmux bind-key "$_stssettings__prefix_without_ctrl" last-window
     fi
 
-    # easier switching between next/prev window
+    #easier switching between next/prev window
     if _key_binding_not_set "C-p"; then
         tmux bind-key C-p previous-window
     fi
@@ -230,7 +229,7 @@ _set_tmux_sensible_settings() {
         tmux bind-key C-n next-window
     fi
 
-    # source `.tmux.conf` file - as suggested in `man tmux`
+    #source `.tmux.conf` file - as suggested in `man tmux`
     for key in r R; do
         if _key_binding_not_set "${key}"; then
             tmux bind-key       "${key}"  run-shell '
@@ -239,7 +238,7 @@ _set_tmux_sensible_settings() {
         fi
     done; unset key
 
-    # vi like experience for vi-copy mode
+    #vi like experience for vi-copy mode
     if _key_binding_not_set "Escape"; then
         tmux bind Escape copy-mode
 

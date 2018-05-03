@@ -24,41 +24,41 @@ Upon installation no further steps are required, tmux-sensible is just about com
 
 ### Options
 
-    # utf8 is on
+    #utf8 is on
     set -g utf8 on
     set -g status-utf8 on
 
-    # address vim mode switching delay (http://superuser.com/a/252717/65504)
+    #address vim mode switching delay (http://superuser.com/a/252717/65504)
     set -s escape-time 0
 
-    # increase scrollback buffer size
+    #increase scrollback buffer size
     set -g history-limit 50000
 
-    # tmux messages are displayed for 4 seconds
+    #tmux messages are displayed for 4 seconds
     set -g display-time 4000
 
-    # refresh 'status-left' and 'status-right' more often
+    #refresh 'status-left' and 'status-right' more often
     set -g status-interval 5
 
-    # set only on OS X where it's required
+    #set only on OS X where it's required
     set -g default-command "reattach-to-user-namespace -l $SHELL"
 
-    # upgrade $TERM
+    #upgrade $TERM
     set -g default-terminal "screen-256color"
 
-    # emacs key bindings in tmux command prompt (prefix + :) are better than
-    # vi keys, even for vim users
+    #emacs key bindings in tmux command prompt (prefix + :) are better than
+    #vi keys, even for vim users
     set -g status-keys emacs
 
-    # focus events enabled for terminals that support them
+    #focus events enabled for terminals that support them
     set -g focus-events on
 
-    # super useful when using "grouped sessions" and multi-monitor setup
+    #super useful when using "grouped sessions" and multi-monitor setup
     setw -g aggressive-resize on
 
 ### Key bindings
 
-    # easier and faster switching between next/prev window
+    #easier and faster switching between next/prev window
     bind C-p previous-window
     bind C-n next-window
 
@@ -66,12 +66,12 @@ Above bindings enhance the default `prefix + p` and `prefix + n` bindings by
 allowing you to hold `Ctrl` and repeat `a + p`/`a + n` (if your prefix is
 `C-a`), which is a lot quicker.
 
-    # source .tmux.conf as suggested in `man tmux`
+    #source .tmux.conf as suggested in `man tmux`
     bind R source-file '~/.tmux.conf'
 
 "Adaptable" key bindings that build upon your `prefix` value:
 
-    # if prefix is 'C-a'
+    #if prefix is 'C-a'
     bind C-a send-prefix
     bind a last-window
 
