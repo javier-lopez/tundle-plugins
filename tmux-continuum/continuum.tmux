@@ -6,6 +6,7 @@ CURRENT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 . "${CURRENT_DIR}/scripts/helpers.sh"
 
 save_command_hook="#(${CURRENT_DIR}/scripts/continuum_save.sh)"
+status_command_hook="#(${CURRENT_DIR}/scripts/continuum_status.sh)"
 
 _current_tmux_server_pid() {
     #input: /tmp/tmux-1000/default,20993,0
@@ -66,7 +67,17 @@ if _supported_tmux_version_helper; then
         fi
 
         status_right_value="$(_get_tmux_option_helper "status-right")"
-        #check if hook hasn't been added
+        status_left_value="$(_get_tmux_option_helper "status-left")"
+
+        #interpolate #{continuum_status} variable
+        status_right_value_interpolation="$(printf "%s\\n" "${status_right_value}" | sed "s:#{continuum_status}:${status_command_hook}:g")"
+        status_left_value_interpolation="$(printf "%s\\n" "${status_left_value}"   | sed "s:#{continuum_status}:${status_command_hook}:g")"
+
+        tmux set-option -g "status-right" "${status_right_value_interpolation}"
+        tmux set-option -g "status-left"  "${status_left_value_interpolation}"
+
+        #check if save hook hasn't been added, add it otherwise
+        status_right_value="$(_get_tmux_option_helper "status-right")"
         case "${status_right_value}" in
             *"${save_command_hook}"*) : ;;
             *) tmux set-option -g "status-right" "${save_command_hook}${status_right_value}" ;;
