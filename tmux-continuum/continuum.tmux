@@ -15,26 +15,25 @@ _current_tmux_server_pid() {
     printf "%s" "${_ctspid__tmux#*,}"
 }
 
-_number_tmux_processes_except_current() {
-    #ignores `tmux source-file .tmux.conf` commands used to reload tmux.conf
-    ps -Ao "command pid" | awk '/^tmux/ {if ($0 != "^tmux source") print}' | \
-        awk '!/'"$(_current_tmux_server_pid)"'/ {total=total+1}; END {print total}'
+#servers, not tmux processes: counting every process that starts with tmux took for another server each
+#client and each tmux command that happened to be running, a reload's source-file or a status line job's
+#tmux call, so a reload with one of them in flight turned the autosave off. A tmux server is the tmux
+#process daemon() leaves as a session leader without a terminal; clients and commands are none of that
+#(a client a terminal emulator starts is a session leader, but it has a terminal)
+_number_tmux_servers_except_current() {
+    ps -A -o pid= -o sid= -o tty= -o args= | awk -v current="$(_current_tmux_server_pid)" \
+        '$4 ~ /^tmux/ && $1 == $2 && $3 ~ /^\?+$/ && $1 != current {total++} END {print total + 0}'
 }
 
 _another_tmux_server_running() {
-    if [ "$(tmux list-sessions | awk 'END {print NR}')" = "0" ]; then
-        [ "$(_number_tmux_processes_except_current)" -gt "1" ]
-    else
-        #script loaded after tmux server start can have multiple clients attached
-        [ "$(_number_tmux_processes_except_current)" -gt "$(tmux list-clients | awk 'END {print NR}')" ]
-    fi
+    [ "$(_number_tmux_servers_except_current)" -gt "0" ]
 }
 
 _continuum_restore() {
     #auto restore only if this is the only tmux server and the user has manually enabled this plugin
     #if another tmux server exists, it is assumed auto-restore is not wanted
     if [ "$(_get_tmux_option_global_helper "${continuum_restore_option}" "${continuum_restore_default}")" = "on" ]; then
-        if [ ! -f "${continuum_restore_halt_file}" ] && [ "$(_number_tmux_processes_except_current)" = "1" ]; then
+        if [ ! -f "${continuum_restore_halt_file}" ] && ! _another_tmux_server_running; then
             #give tmux some time to start and source all the plugins
             #required for getting resurrect_restore_path_option set by the resurrect plugin
             #this can also be accomplished using the TMUX_PLUGIN_MANAGER_PATH variable without sleeping

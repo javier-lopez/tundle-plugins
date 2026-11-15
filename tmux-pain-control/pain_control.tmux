@@ -7,7 +7,8 @@
 SUPPORTED_TMUX_VERSION="1.6"
 
 _get_digits_from_string_helper() {
-    [ -n "${1}" ] &&  printf "%s\\n" "${1}" | tr -dC '0123456789'
+    #major and minor only, a release candidate has more digits: `tmux 3.0-rc3` => `30`, not `303`
+    [ -n "${1}" ] &&  printf "%s\\n" "${1}" | sed 's:^[^0-9]*\([0-9]*\)[^0-9]*\([0-9]*\).*:\1\2:'
 }
 
 _get_tmux_option_helper() {
@@ -73,8 +74,15 @@ _pane_navigation_bindings() {
 }
 
 _window_move_bindings() {
-    tmux bind-key -r "<" swap-window -t -1
-    tmux bind-key -r ">" swap-window -t +1
+    if [ "${TMUX_VERSION}" -ge "30" ]; then
+        #tmux 3.0 swaps and stays in the index it was called from, on the other window. From 3.0a on it
+        #follows the one that moved when given -d, which meant the opposite before: it's followed by hand
+        tmux bind-key -r "<" swap-window -t -1 '\;' select-window -t -1
+        tmux bind-key -r ">" swap-window -t +1 '\;' select-window -t +1
+    else
+        tmux bind-key -r "<" swap-window -t -1
+        tmux bind-key -r ">" swap-window -t +1
+    fi
 }
 
 _pane_resizing_bindings() {

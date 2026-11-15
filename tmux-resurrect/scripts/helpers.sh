@@ -43,7 +43,8 @@ _mkdir_p_helper() { #portable mkdir -p
 }
 
 _get_digits_from_string_helper() {
-    [ -n "${1}" ] &&  printf "%s\\n" "${1}" | tr -dC '0123456789'
+    #major and minor only, a release candidate has more digits: `tmux 3.0-rc3` => `30`, not `303`
+    [ -n "${1}" ] &&  printf "%s\\n" "${1}" | sed 's:^[^0-9]*\([0-9]*\)[^0-9]*\([0-9]*\).*:\1\2:'
 }
 
 _get_tmux_option_helper() {

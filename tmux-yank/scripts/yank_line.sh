@@ -35,8 +35,14 @@ if _supported_tmux_version_helper; then
 
     tmux copy-mode #enter tmux copy mode
 
+    #since tmux 2.4 copy mode is driven by the name of its commands (send-keys -X), vi or emacs: a count
+    #opens a prompt on the client, where the keys sent to the pane never arrive, and tmux 2.4 itself
+    #drops every key sent to a pane that is in copy mode
+
     #start tmux selection
-    if [ "${copy_mode}" = "vi" ]; then
+    if [ "${TMUX_VERSION}" -ge "24" ]; then
+        tmux send-keys -X begin-selection
+    elif [ "${copy_mode}" = "vi" ]; then
         tmux send-keys 'Space'
     else
         tmux send-keys 'C-Space'
@@ -45,7 +51,12 @@ if _supported_tmux_version_helper; then
 
     #go to the end of line in copy mode
     #works when command spans accross multiple lines
-    if [ "${copy_mode}" = "vi" ]; then
+    if [ "${TMUX_VERSION}" -ge "24" ]; then
+        tmux send-keys -X -N 150 cursor-down
+        tmux send-keys -X end-of-line
+        tmux send-keys -X previous-word
+        tmux send-keys -X next-word-end
+    elif [ "${copy_mode}" = "vi" ]; then
         #this sequence of keys consistently selects multiple lines
         tmux send-keys '150' #go to the bottom of scrollback buffer by using
         tmux send-keys 'j'   #'down' key. 'vi' mode is faster so we're jumping more lines than emacs.
@@ -64,7 +75,9 @@ if _supported_tmux_version_helper; then
     _sleep_in_remote_shells "${pane_cmd}"
 
     #yank to external clipboard
-    if [ "${TMUX_VERSION}" -ge "18" ]; then
+    if [ "${TMUX_VERSION}" -ge "24" ]; then
+        tmux send-keys -X copy-pipe-and-cancel "tr -d '\n' | $(_clipboard_cmd_helper)"
+    elif [ "${TMUX_VERSION}" -ge "18" ]; then
         tmux send-keys "$(_get_tmux_option_global_helper "${yank_wo_newline_option}" "${yank_wo_newline_default}")"
     else
         tmux send-keys Enter

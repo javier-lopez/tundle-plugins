@@ -2,6 +2,10 @@
 
 CURRENT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 
+#where run-shell shows its output, see goto_session.sh
+pane=""
+[ "${TMUX_VERSION-16}" -ge "32" ] && pane="-t $(tmux display-message -p "#{pane_id}")"
+
 if [ -z "${1}" ]; then
     #dismiss session list page from view
     tmux send-keys C-c
@@ -13,7 +17,7 @@ session_len="$(printf "%s" "${session_name}" | awk 'END {print NR}')"
 
 if [ "${session_len}" -gt "1" ]; then
     tmux send-keys C-c
-    tmux run-shell "${CURRENT_DIR}/list_sessions.sh \"${session_name}\""
+    tmux run-shell ${pane} "${CURRENT_DIR}/list_sessions.sh \"${session_name}\""
     "${CURRENT_DIR}/goto_session_prompt.sh"
 elif [ "${session_len}" -eq "1" ]; then
     if tmux has-session -t "${session_name}" >/dev/null 2>&1; then
@@ -21,16 +25,16 @@ elif [ "${session_len}" -eq "1" ]; then
         tmux switch-client -t "${session_name}"
     else
         tmux send-keys C-c
-        tmux run-shell "${CURRENT_DIR}/list_sessions.sh"
-        tmux run-shell 'printf " \\n"'
-        tmux run-shell 'printf "  %s\\n" "\"'"$1"'\" was not found, try again"'
+        tmux run-shell ${pane} "${CURRENT_DIR}/list_sessions.sh"
+        tmux run-shell ${pane} 'printf " \\n"'
+        tmux run-shell ${pane} 'printf "  %s\\n" "\"'"$1"'\" was not found, try again"'
         "${CURRENT_DIR}/goto_session_prompt.sh"
     fi
 else
     tmux send-keys C-c
-    tmux run-shell "${CURRENT_DIR}/list_sessions.sh"
-    tmux run-shell 'printf " \\n"'
-    tmux run-shell 'printf "  %s\\n" "\"'"$1"'\" was not found, try again"'
+    tmux run-shell ${pane} "${CURRENT_DIR}/list_sessions.sh"
+    tmux run-shell ${pane} 'printf " \\n"'
+    tmux run-shell ${pane} 'printf "  %s\\n" "\"'"$1"'\" was not found, try again"'
     "${CURRENT_DIR}/goto_session_prompt.sh"
 fi
 

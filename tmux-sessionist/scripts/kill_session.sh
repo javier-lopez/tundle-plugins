@@ -18,13 +18,16 @@ if _supported_tmux_version_helper; then
 
         #check whether we are in a different session
         if [ "${TMUX_VERSION-16}" -ge "18" ]; then
-            current_session_id="$(tmux display-message -p -F '#{session_id}')"
+            #by name, #{client_session} is where the client is: asked for the current session without
+            #naming one, tmux 2.2 to 3.0 answer with the session of the last key press, the one to kill
+            old_session_name="$(tmux display-message -p -F '#{session_name}' -t "${old_session_id}")"
+            current_session_name="$(tmux display-message -p -F '#{client_session}')"
         else
+            old_session_name="${old_session_id}"
             current_session_name="$(tmux list-sessions | awk '/attached/ {sub(/:/,""); print $1}')"
-            current_session_id="${current_session_name}"
         fi
 
-        if [ X"${old_session_id}" = X"${current_session_id}" ]; then
+        if [ X"${old_session_name}" = X"${current_session_name}" ]; then
             #there is no alternative session or it's the same as the current session
             tmux switch-client -n
         fi

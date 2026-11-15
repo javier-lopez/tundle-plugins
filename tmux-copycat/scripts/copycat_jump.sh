@@ -26,6 +26,16 @@ _jump_to_line() {
     [ -z "${1}" ] && return 0
     [ "${1}" -eq "0" ] && return 0
 
+    if [ "${TMUX_VERSION-16}" -ge "24" ]; then
+        #since tmux 2.4 copy mode is driven by the name of its commands (send-keys -X), vi or emacs: the
+        #goto-line key and the count keys open a prompt on the client, where the keys sent to the pane
+        #never arrive, and tmux 2.4 itself drops every key sent to a pane that is in copy mode
+        tmux send-keys -X history-bottom
+        tmux send-keys -X -N "${1}" cursor-up
+        tmux send-keys -X start-of-line
+        return 0
+    fi
+
     #first jumps to the "bottom" in copy mode so that jumps are consistent
     if [ "${TMUX_COPY_MODE}" = "vi" ]; then
         tmux send-keys G 0 :
@@ -50,6 +60,11 @@ _jump_to_char() {
     [ -z "${1}" ] && return 0
     [ "${1}" -eq "0" ] && return 0
 
+    if [ "${TMUX_VERSION-16}" -ge "24" ]; then #see _jump_to_line
+        tmux send-keys -X -N "${1}" cursor-right
+        return 0
+    fi
+
     if [ "${TMUX_COPY_MODE}" = "vi" ]; then
         tmux send-keys "${1}" l
     else
@@ -63,6 +78,15 @@ _jump_to_char() {
 
 _select() {
     _select__length="${#1}"
+
+    if [ "${TMUX_VERSION-16}" -ge "24" ]; then #see _jump_to_line
+        tmux send-keys -X begin-selection
+        tmux send-keys -X -N "${_select__length}" cursor-right
+        #NO selection correction for emacs mode
+        [ "${TMUX_COPY_MODE}" = "vi" ] && tmux send-keys -X cursor-left
+        return 0
+    fi
+
     if [ "${TMUX_COPY_MODE}" = "vi" ]; then
         tmux send-keys Space "${_select__length}" l h
     else
@@ -123,7 +147,9 @@ _jump() {
     tmux copy-mode
 
     #clears selection from a previous match
-    if [ "${TMUX_COPY_MODE}" = "vi" ]; then
+    if [ "${TMUX_VERSION-16}" -ge "24" ]; then #see _jump_to_line
+        tmux send-keys -X clear-selection
+    elif [ "${TMUX_COPY_MODE}" = "vi" ]; then
         tmux send-keys Escape
     else
         tmux send-keys C-g

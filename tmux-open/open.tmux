@@ -88,10 +88,12 @@ if _supported_tmux_version_helper; then
             done
         fi
     else
+        #run-shell isn't a copy mode command: tmux < 2.4 refuses to bind it in a mode table and tmux >= 2.4
+        #ignores it when the key is pressed, copy-pipe is the one that runs a shell command there
         #https://github.com/tmux/tmux/commit/76d6d3641f271be1756e41494960d96714e7ee58
         if [ "${TMUX_VERSION}" -ge "24" ]; then #shitty tmux development model
             for mode in copy-mode-vi copy-mode; do
-                tmux bind-key -T "${mode}" "${open_key}" send-keys -X run-shell "$(_display_deps_error_helper)"
+                tmux bind-key -T "${mode}" "${open_key}" send-keys -X copy-pipe-and-cancel "$(_display_deps_error_helper)"
             done
 
             #custom user internet searches, eg: @open-g 'https://www.google.com/search?q='
@@ -100,12 +102,12 @@ if _supported_tmux_version_helper; then
                 binding="${engine_binding##@open}"; binding=${binding#?}
 
                 for mode in copy-mode-vi copy-mode; do
-                    tmux bind-key -T "${mode}" "${binding}" send-keys -X run-shell "$(_display_deps_error_helper)"
+                    tmux bind-key -T "${mode}" "${binding}" send-keys -X copy-pipe-and-cancel "$(_display_deps_error_helper)"
                 done
             done
         elif [ "${TMUX_VERSION}" -ge "18" ]; then
             for mode in vi-copy emacs-copy; do
-                tmux bind-key -t "${mode}" "${open_key}" run-shell "$(_display_deps_error_helper)"
+                tmux bind-key -t "${mode}" "${open_key}" copy-pipe "$(_display_deps_error_helper)"
             done
 
             #custom user internet searches, eg: @open-g 'https://www.google.com/search?q='
@@ -114,7 +116,7 @@ if _supported_tmux_version_helper; then
                 binding="${engine_binding##@open}"; binding=${binding#?}
 
                 for mode in vi-copy emacs-copy; do
-                    tmux bind-key -t "${mode}" "${binding}" run-shell "$(_display_deps_error_helper)"
+                    tmux bind-key -t "${mode}" "${binding}" copy-pipe "$(_display_deps_error_helper)"
                 done
             done
         else
@@ -160,11 +162,11 @@ if _supported_tmux_version_helper; then
         #https://github.com/tmux/tmux/commit/76d6d3641f271be1756e41494960d96714e7ee58
         if [ "${TMUX_VERSION}" -ge "24" ]; then #shitty tmux development model
             for mode in copy-mode-vi copy-mode; do
-                tmux bind-key -T "${mode}" "${editor_key}" send-keys -X run-shell "$(_display_deps_error_helper)"
+                tmux bind-key -T "${mode}" "${editor_key}" send-keys -X copy-pipe-and-cancel "$(_display_deps_error_helper)"
             done
         elif [ "${TMUX_VERSION}" -ge "18" ]; then
             for mode in vi-copy emacs-copy; do
-                tmux bind-key -t "${mode}" "${editor_key}" run-shell "$(_display_deps_error_helper)"
+                tmux bind-key -t "${mode}" "${editor_key}" copy-pipe "$(_display_deps_error_helper)"
             done
         fi
     fi

@@ -35,7 +35,8 @@ _mkdir_p_helper() { #portable mkdir -p
 }
 
 _get_digits_from_string_helper() {
-    [ -n "${1}" ] &&  printf "%s\\n" "${1}" | tr -dC '0123456789'
+    #major and minor only, a release candidate has more digits: `tmux 3.0-rc3` => `30`, not `303`
+    [ -n "${1}" ] &&  printf "%s\\n" "${1}" | sed 's:^[^0-9]*\([0-9]*\)[^0-9]*\([0-9]*\).*:\1\2:'
 }
 
 _get_tmux_option_helper() {
@@ -115,11 +116,64 @@ _extend_key_helper() {
     #$1 => key
     #$2 => script
 
+    if [ "${TMUX_VERSION-16}" -ge "24" ]; then
+        #since tmux 2.4 the keys of copy mode live in a regular key table, looked up before the root
+        #one, so a key bound with -n never fires in copy mode. The key is extended in its own table
+        #instead: its command goes first, and it's kept to give it back in _restore_keys_helper
+        _ekhelper__table="$(_copycat_mode_table_helper)"
+        _ekhelper__command="$(tmux list-keys -T "${_ekhelper__table}" | $AWK_CMD -v key="${1}" \
+            '$4 == key && !/copycat_/ {$1 = $2 = $3 = $4 = ""; sub(/^ +/, ""); print; exit}')"
+        #not bound, or already extended
+        [ -z "${_ekhelper__command}" ] && return 0
+        tmux set-environment -g "@copycat-extended-${1}" "${_ekhelper__command}"
+        tmux bind-key -T "${_ekhelper__table}" "${1}" run-shell "tmux ${_ekhelper__command}; ${2}; true"
+        return 0
+    fi
+
     #1. 'key' is sent to tmux. This ensures the default key action is done.
     #2. Script is executed.
     #3. `true` command ensures an exit status 0 is returned to ensures the
     #user never gets an error msg
     tmux bind-key -n "${1}" run-shell "tmux send-keys '${1}'; ${2}; true"
+}
+
+#tmux >= 2.4, gives back to the keys extended by _extend_key_helper the commands they had
+_restore_keys_helper() {
+    _rkhelper__table="$(_copycat_mode_table_helper)"
+    for _rkhelper__var in $(tmux show-environment -g | $AWK_CMD -F"=" '/^@copycat-extended-/ {print $1}'); do
+        _rkhelper__command="$(_get_tmux_environment_helper "${_rkhelper__var}")"
+        #already given back by another pane that left copycat mode at the same time
+        [ -z "${_rkhelper__command}" ] && continue
+        #the command is kept as list-keys prints it, sh splits it back into arguments
+        sh -c "tmux bind-key -T '${_rkhelper__table}' '${_rkhelper__var##@copycat-extended-}' ${_rkhelper__command}"
+        tmux set-environment -gu "${_rkhelper__var}"
+    done
+}
+
+#tmux >= 2.4, leaves copycat mode when the pane leaves copy mode, whatever took it out: a key, the mouse,
+#a command. The keys that quit copy mode aren't extended as the next and prev ones: list-keys doesn't
+#print every command in a form that can be given back to tmux (a newline is printed as \012 or \n, and
+#tmux-open's has one), the key would end with a broken command
+_copycat_mode_watch_helper() {
+    #$1 => script
+    (
+        #tmux waits for whoever holds the output of the script behind a key, and runs no other key
+        #meanwhile: nothing of it is kept here, not even the copies sh makes to redirect a function
+        exec >/dev/null 2>&1
+        _cmwhelper__pane="$(tmux display-message -p "#{pane_id}")"
+        while [ "$(tmux display-message -p -t "${_cmwhelper__pane}" "#{pane_in_mode}")" = "1" ]; do
+            sleep 0.5
+        done
+        "${1}"
+    ) &
+}
+
+#tmux >= 2.4, the key table of copy mode: copy-mode-vi (was vi-copy) or copy-mode (was emacs-copy)
+_copycat_mode_table_helper() {
+    case "$(tmux show-option -gw | awk "/^mode-keys/ {gsub(/\'/,\"\");gsub(/\"/,\"\"); print \$2; exit;}")" in
+        vi) printf "%s" "copy-mode-vi" ;;
+         *) printf "%s" "copy-mode"    ;;
+    esac
 }
 
 _get_copycat_filename_helper() {

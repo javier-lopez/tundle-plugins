@@ -13,11 +13,16 @@ if _supported_tmux_version_helper; then
         _decrease_internal_counter_helper
         # removing all bindings only if no panes are in copycat mode
         if _copycat_counter_zero_helper; then
-            for key in $(_copycat_quit_copy_mode_keys_helper); do
-                tmux unbind-key -n "${key}"
-            done
-            tmux unbind-key -n "$(_get_tmux_option_global_helper "${tmux_option_next}" "${default_next_key}")"
-            tmux unbind-key -n "$(_get_tmux_option_global_helper "${tmux_option_prev}" "${default_prev_key}")"
+            if [ "${TMUX_VERSION-16}" -ge "24" ]; then
+                #the keys were extended in the copy mode table, not in the root one: see _extend_key_helper
+                _restore_keys_helper
+            else
+                for key in $(_copycat_quit_copy_mode_keys_helper); do
+                    tmux unbind-key -n "${key}"
+                done
+                tmux unbind-key -n "$(_get_tmux_option_global_helper "${tmux_option_next}" "${default_next_key}")"
+                tmux unbind-key -n "$(_get_tmux_option_global_helper "${tmux_option_prev}" "${default_prev_key}")"
+            fi
         fi
     fi
 else

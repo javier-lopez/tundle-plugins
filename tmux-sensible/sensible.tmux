@@ -7,7 +7,8 @@
 SUPPORTED_TMUX_VERSION="1.6"
 
 _get_digits_from_string_helper() {
-    [ -n "${1}" ] &&  printf "%s\\n" "${1}" | tr -dC '0123456789'
+    #major and minor only, a release candidate has more digits: `tmux 3.0-rc3` => `30`, not `303`
+    [ -n "${1}" ] &&  printf "%s\\n" "${1}" | sed 's:^[^0-9]*\([0-9]*\)[^0-9]*\([0-9]*\).*:\1\2:'
 }
 
 _get_tmux_option_helper() {
@@ -79,6 +80,8 @@ _supported_tmux_version() {
 KEY_BINDING_REGEX="bind-key[[:space:]]\+\(-r[[:space:]]\+\)\?\(-T prefix[[:space:]]\+\)\?"
 # used to match output from `tmux list-keys -t key-table`
 KEY_BINDING_REGEX_KEY_TABLE="bind-key[[:space:]]\+-t[[:space:]]\+\(vi\|emacs\)-copy[[:space:]]\+"
+# used to match output from `tmux list-keys -T key-table`, tmux >= 2.4
+KEY_BINDING_REGEX_KEY_TABLE_24="bind-key[[:space:]]\+-T[[:space:]]\+copy-mode\(-vi\)\?[[:space:]]\+"
 
 sensible_mouse_default="y"
 sensible_mouse_option="@sensible_mouse"
@@ -114,17 +117,37 @@ _key_binding_not_changed() {
     [ -z "${2}" ] && return 1
     if [ -z "${3}" ]; then
         tmux list-keys | grep "${KEY_BINDING_REGEX}${1}[[:space:]]\+${2}" >/dev/null
+    elif [ "${TMUX_VERSION}" -ge "24" ]; then
+        #tmux 2.4 turned the mode tables (-t vi-copy) into regular key tables (-T copy-mode-vi), and their
+        #commands go through send-keys -X
+        case "${3}" in
+            vi-copy) _kbnchanged__table="copy-mode-vi" ;;
+                  *) _kbnchanged__table="copy-mode"    ;;
+        esac
+        tmux list-keys -T "${_kbnchanged__table}" | \
+            grep "${KEY_BINDING_REGEX_KEY_TABLE_24}${1}[[:space:]]\+send-keys -X ${2}\$" >/dev/null
     else
         tmux list-keys -t "${3}"| grep "${KEY_BINDING_REGEX_KEY_TABLE}${1}[[:space:]]\+${2}" >/dev/null
     fi
 }
 
-_set_tmux_sensible_settings() {
-    #enable utf8
-    tmux set-option -g utf8 on
+_bind_key_vi_copy() {
+    if [ "${TMUX_VERSION}" -ge "24" ]; then #see _key_binding_not_changed
+        tmux bind-key -T copy-mode-vi "${1}" send-keys -X "${2}"
+    else
+        tmux bind-key -t vi-copy "${1}" "${2}"
+    fi
+}
 
-    #enable utf8 in tmux status-left and status-right
-    tmux set-option -g status-utf8 on
+_set_tmux_sensible_settings() {
+    #since tmux 2.2 utf8 is detected from the client's locale and both options are gone
+    if [ "${TMUX_VERSION}" -lt "22" ]; then
+        #enable utf8
+        tmux set-option -g utf8 on
+
+        #enable utf8 in tmux status-left and status-right
+        tmux set-option -g status-utf8 on
+    fi
 
     #start windows and panes at 1, not 0, to match with vim, bspwm and i3
     if _option_value_not_changed "base-index" "0"; then
@@ -143,7 +166,14 @@ _set_tmux_sensible_settings() {
     fi
 
     #address vim mode switching delay (http://superuser.com/a/252717/65504)
-    if _server_option_value_not_changed "escape-time" "500"; then
+    if [ "${TMUX_VERSION}" -ge "35" ]; then
+        #tmux 3.5 took its default from 500 to 10 milliseconds
+        _stssettings__escape_time="10"
+    else
+        _stssettings__escape_time="500"
+    fi
+
+    if _server_option_value_not_changed "escape-time" "${_stssettings__escape_time}"; then
         tmux set-option -s escape-time 0
     fi
 
@@ -192,7 +222,14 @@ _set_tmux_sensible_settings() {
     tmux set-option -g mode-keys vi
 
     #enable mouse features for terminals that support it
-    if [ "$(_get_tmux_option_global_helper "${sensible_mouse_option}" "${sensible_mouse_default}")" = "y" ]; then
+    if [ "${TMUX_VERSION}" -ge "21" ]; then
+        #tmux 2.1 rewrote the mouse support and the options below went away with it: since then the mouse
+        #has been off, and it stays off unless @sensible_mouse asks for it. One option stands for the
+        #former three
+        if [ "$(_get_tmux_option_global_helper "${sensible_mouse_option}" "n")" = "y" ]; then
+            tmux set-option -g mouse on
+        fi
+    elif [ "$(_get_tmux_option_global_helper "${sensible_mouse_option}" "${sensible_mouse_default}")" = "y" ]; then
         tmux set-option -g mouse-resize-pane on
         tmux set-option -g mouse-select-pane on
         tmux set-option -g mouse-select-window on
@@ -242,17 +279,28 @@ _set_tmux_sensible_settings() {
     if _key_binding_not_set "Escape"; then
         tmux bind Escape copy-mode
 
-        tmux bind -t vi-copy Home start-of-line
-        tmux bind -t vi-copy End end-of-line
+        _bind_key_vi_copy Home start-of-line
+        _bind_key_vi_copy End end-of-line
     fi
 
     if _key_binding_not_changed Space begin-selection "vi-copy"; then
-        tmux bind -t vi-copy v begin-selection
-        tmux bind -t vi-copy V begin-selection
+        _bind_key_vi_copy v begin-selection
+        _bind_key_vi_copy V begin-selection
     fi
 
-    if _key_binding_not_changed Enter copy-selection "vi-copy"; then
-        tmux bind -t vi-copy y copy-selection
+    #what Enter does by default, so y does the same
+    if [ "${TMUX_VERSION}" -ge "32" ]; then
+        #since tmux 3.2 it pipes the selection to the copy-command option, when there is one
+        _stssettings__copy_selection="copy-pipe-and-cancel"
+    elif [ "${TMUX_VERSION}" -ge "24" ]; then
+        #since tmux 2.4 copy-selection stays in copy mode
+        _stssettings__copy_selection="copy-selection-and-cancel"
+    else
+        _stssettings__copy_selection="copy-selection"
+    fi
+
+    if _key_binding_not_changed Enter "${_stssettings__copy_selection}" "vi-copy"; then
+        _bind_key_vi_copy y "${_stssettings__copy_selection}"
     fi
 }
 

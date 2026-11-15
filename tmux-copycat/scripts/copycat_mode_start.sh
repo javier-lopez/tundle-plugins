@@ -49,9 +49,11 @@ _copycat_mode_bindings(){
         "${CURRENT_DIR}/copycat_jump.sh 'prev'"
 
     #keys that quit copy mode are enhanced to quit copycat mode as well.
-    for _cmbindings__key in $(_copycat_quit_copy_mode_keys_helper); do
-        _extend_key_helper "${_cmbindings__key}" "${CURRENT_DIR}/copycat_mode_quit.sh"
-    done
+    if [ "${TMUX_VERSION-16}" -lt "24" ]; then #tmux >= 2.4: see _copycat_mode_watch_helper
+        for _cmbindings__key in $(_copycat_quit_copy_mode_keys_helper); do
+            _extend_key_helper "${_cmbindings__key}" "${CURRENT_DIR}/copycat_mode_quit.sh"
+        done
+    fi
 
     #yank integration for older tmux versions without copy-pipe
     if [ "${TMUX_VERSION-16}" -lt "18" ]; then
@@ -89,6 +91,9 @@ if _supported_tmux_version_helper; then
     fi
     _copycat_mode_bindings
     "${CURRENT_DIR}/copycat_jump.sh" 'next'
+    if [ "${TMUX_VERSION-16}" -ge "24" ]; then
+        _copycat_mode_watch_helper "${CURRENT_DIR}/copycat_mode_quit.sh"
+    fi
 else
     #should errors will be displayed per plugin?
     #_display_message_helper "$(printf "%s\\n" \

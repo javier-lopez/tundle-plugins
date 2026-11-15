@@ -74,17 +74,19 @@ if _supported_tmux_version_helper; then
         fi
         tmux bind-key "${yank_line_key}" run-shell "${CURRENT_DIR}/scripts/yank_line.sh"
     else
+        #run-shell isn't a copy mode command: tmux < 2.4 refuses to bind it in a mode table and tmux >= 2.4
+        #ignores it when the key is pressed, copy-pipe is the one that runs a shell command there
         #https://github.com/tmux/tmux/commit/76d6d3641f271be1756e41494960d96714e7ee58
         if [ "${TMUX_VERSION}" -ge "24" ]; then #shitty tmux development model
             for mode in copy-mode-vi copy-mode; do
                 for key in "${yank_key}" "${put_key}" "${yank_put_key}"; do
-                    tmux bind-key -T "${mode}" "${key}" send-keys -X run-shell "$(_display_deps_error)"
+                    tmux bind-key -T "${mode}" "${key}" send-keys -X copy-pipe-and-cancel "$(_display_deps_error)"
                 done
             done
         elif [ "${TMUX_VERSION}" -ge "18" ]; then
             for mode in vi-copy emacs-copy; do
                 for key in "${yank_key}" "${put_key}" "${yank_put_key}"; do
-                    tmux bind-key -t "${mode}" "${key}" run-shell "$(_display_deps_error)"
+                    tmux bind-key -t "${mode}" "${key}" copy-pipe "$(_display_deps_error)"
                 done
             done
         else
